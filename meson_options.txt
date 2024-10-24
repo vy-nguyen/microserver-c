@@ -1,0 +1,6 @@
+option(
+  'use_custom_pistache',
+  type: 'boolean',
+  value: true,
+  description: 'Use a custom-built Pistache version.'
+)

@@ -1,0 +1,7 @@
+ [wrap-git]
+ url = https://github.com/pistacheio/pistache.git
+ revision = master
+ depth = 1
+
+ [provide]
+ pistache_dep = pistache
