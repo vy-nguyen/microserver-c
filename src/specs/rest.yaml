@@ -1,0 +1,65 @@
+openapi: 3.0.0
+info:
+  title: Simple API
+  description: A simple API to demonstrate OpenAPI to C++ stub generation.
+  version: 1.0.0
+
+servers:
+  - url: http://localhost:8080
+
+paths:
+  /hello:
+    get:
+      summary: Returns a greeting message
+      description: This endpoint returns a greeting message.
+      responses:
+        '200':
+          description: A greeting message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Hello, World!"
+
+  /echo:
+    post:
+      summary: Echoes back the received message
+      description: This endpoint takes a message and echoes it back.
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Message to echo back
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Hello"
+      responses:
+        '200':
+          description: Echoed message
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '401':
+          $ref: '#/components/responses/UnauthorizedError'
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  responses:
+    UnauthorizedError:
+      description: Access token is missing or invalid

@@ -6,4 +6,6 @@ subprojects/packagecache
 subprojects/pistache
 subprojects/rapidjson-1.1.0
 subprojects/rapidjson.wrap
-
+subprojects/soci
+subprojects/nlohmann
+subprojects/jwt-cpp

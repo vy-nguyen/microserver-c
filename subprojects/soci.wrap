@@ -1,0 +1,7 @@
+[wrap-git]
+url = https://github.com/SOCI/soci.git
+revision = v4.0.1
+depth = 1
+
+[provide]
+soci_dep = soci_proj

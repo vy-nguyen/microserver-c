@@ -1,0 +1,7 @@
+[wrap-git]
+url = https://github.com/Thalhammer/jwt-cpp.git
+revision = v0.7.0
+depth = 1
+
+[provide]
+jwt_cpp_dep = jwt_cpp
