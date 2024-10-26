@@ -4,20 +4,12 @@ project(
   default_options : ['cpp_std=c++17']
 )
 
-# Fetch the Pistache library as a subproject
-#
-pistache_dep = dependency(
-  'pistache', fallback : ['pistache', 'pistache_dep']
-)
+project_source = [
+  'src/main.cpp',
+]
 
 # Fetch the json lib required by openapi
 #
-nlohmann_dep = dependency(
-  'nlohmann',
-  fallback : ['nlohmann', 'nlohmann_json_dep'],
-  static: true,
-)
-
 # Setup cmake project for mysql connector
 #
 cmake = import('cmake')
@@ -28,43 +20,37 @@ soci_proj = cmake.subproject('soci', cmake_options: [
 ])
 
 soci_lib = soci_proj.dependency('soci_core')
+
 inc_dirs = include_directories(
+  'src/include',
   'src/specs/api',
   'src/specs/model',
   'subprojects/pistache/include',
   'subprojects/nlohmann/include',
 )
 
-http_specs = meson.source_root() / 'src/specs'
-http_srcs = [
-  http_specs / 'api/DefaultApi.cpp',
-  http_specs / 'model/Helpers.cpp',
-  http_specs / 'model/_hello_get_200_response.cpp',
-  http_specs / 'model/_echo_post_request.cpp',
-  http_specs / 'model/_echo_post_200_response.cpp',
+project_dependencies = [
+  dependency('pistache', fallback : ['pistache', 'pistache_dep']),
+  dependency('nlohmann', fallback : ['nlohmann', 'nlohmann_json_dep'], static: true),
+  soci_lib,
 ]
 
-http_lib = static_library(
-  'http_stub_lib',
-  http_srcs,
-  include_directories: inc_dirs
+subdir('src/server')
+
+http_stub_lib = static_library(
+  'http_stub_lib', http_stub_sources, include_directories: inc_dirs
 )
+http_stub_lib_dep = declare_dependency(include_directories: inc_dirs)
 
 #
 # Define the executable to be built from the src directory
 executable(
   'trustsrv',
-  sources: [
-    'src/main.cpp',
-  ],
-  link_with: [
-    http_lib,
-  ],
   include_directories: inc_dirs,
-  dependencies: [
-    soci_lib,
-    nlohmann_dep,
-    pistache_dep
+  dependencies: project_dependencies,
+  sources: project_source,
+  link_with: [
+    http_stub_lib,
   ],
-  install: true
+  install: true,
 )
