@@ -1,7 +1,7 @@
 #pragma once
 
+#include "ItemIdArray.h"
 #include <pistache/http.h>
-#include <_echo_post_request.h>
 #include <DefaultApi.h>
 
 namespace seal {
@@ -17,8 +17,11 @@ class RestApi : public api::DefaultApi {
     explicit RestApi(const std::shared_ptr<Rest::Router> &router);
     ~RestApi() override = default;
 
-    void echo_post(const model::_echo_post_request &reqt, Response &resp) override;
-    void hello_get(Response &resp) override;
+    void auth_echo_post(const model::_auth_echo_post_request &reqt, Response &resp) override;
+    void public_hello_get(Response &resp) override;
+
+    void auth_counter_post(const model::StatOperation &stats, Response &resp) override;
+    void public_counter_post(const model::ItemIdArray &array, Response &resp) override;
 };
 
 }

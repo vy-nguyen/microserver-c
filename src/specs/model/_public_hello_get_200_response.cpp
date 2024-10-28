@@ -11,7 +11,7 @@
 */
 
 
-#include "_echo_post_200_response.h"
+#include "_public_hello_get_200_response.h"
 #include "Helpers.h"
 
 #include <sstream>
@@ -19,14 +19,14 @@
 namespace org::openapitools::server::model
 {
 
-_echo_post_200_response::_echo_post_200_response()
+_public_hello_get_200_response::_public_hello_get_200_response()
 {
     m_Message = "";
     m_MessageIsSet = false;
     
 }
 
-void _echo_post_200_response::validate() const
+void _public_hello_get_200_response::validate() const
 {
     std::stringstream msg;
     if (!validate(msg))
@@ -35,21 +35,21 @@ void _echo_post_200_response::validate() const
     }
 }
 
-bool _echo_post_200_response::validate(std::stringstream& msg) const
+bool _public_hello_get_200_response::validate(std::stringstream& msg) const
 {
     return validate(msg, "");
 }
 
-bool _echo_post_200_response::validate(std::stringstream& msg, const std::string& pathPrefix) const
+bool _public_hello_get_200_response::validate(std::stringstream& msg, const std::string& pathPrefix) const
 {
     bool success = true;
-    const std::string _pathPrefix = pathPrefix.empty() ? "_echo_post_200_response" : pathPrefix;
+    const std::string _pathPrefix = pathPrefix.empty() ? "_public_hello_get_200_response" : pathPrefix;
 
         
     return success;
 }
 
-bool _echo_post_200_response::operator==(const _echo_post_200_response& rhs) const
+bool _public_hello_get_200_response::operator==(const _public_hello_get_200_response& rhs) const
 {
     return
     
@@ -60,12 +60,12 @@ bool _echo_post_200_response::operator==(const _echo_post_200_response& rhs) con
     ;
 }
 
-bool _echo_post_200_response::operator!=(const _echo_post_200_response& rhs) const
+bool _public_hello_get_200_response::operator!=(const _public_hello_get_200_response& rhs) const
 {
     return !(*this == rhs);
 }
 
-void to_json(nlohmann::json& j, const _echo_post_200_response& o)
+void to_json(nlohmann::json& j, const _public_hello_get_200_response& o)
 {
     j = nlohmann::json::object();
     if(o.messageIsSet())
@@ -73,7 +73,7 @@ void to_json(nlohmann::json& j, const _echo_post_200_response& o)
     
 }
 
-void from_json(const nlohmann::json& j, _echo_post_200_response& o)
+void from_json(const nlohmann::json& j, _public_hello_get_200_response& o)
 {
     if(j.find("message") != j.end())
     {
@@ -83,20 +83,20 @@ void from_json(const nlohmann::json& j, _echo_post_200_response& o)
     
 }
 
-std::string _echo_post_200_response::getMessage() const
+std::string _public_hello_get_200_response::getMessage() const
 {
     return m_Message;
 }
-void _echo_post_200_response::setMessage(std::string const& value)
+void _public_hello_get_200_response::setMessage(std::string const& value)
 {
     m_Message = value;
     m_MessageIsSet = true;
 }
-bool _echo_post_200_response::messageIsSet() const
+bool _public_hello_get_200_response::messageIsSet() const
 {
     return m_MessageIsSet;
 }
-void _echo_post_200_response::unsetMessage()
+void _public_hello_get_200_response::unsetMessage()
 {
     m_MessageIsSet = false;
 }

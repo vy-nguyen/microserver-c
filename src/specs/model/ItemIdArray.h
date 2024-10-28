@@ -10,16 +10,18 @@
 * Do not edit the class manually.
 */
 /*
- * _echo_post_200_response.h
+ * ItemIdArray.h
  *
  * 
  */
 
-#ifndef _echo_post_200_response_H_
-#define _echo_post_200_response_H_
+#ifndef ItemIdArray_H_
+#define ItemIdArray_H_
 
 
-#include <string>
+#include "ItemKey.h"
+#include "ItemId.h"
+#include <vector>
 #include <nlohmann/json.hpp>
 
 namespace org::openapitools::server::model
@@ -28,11 +30,11 @@ namespace org::openapitools::server::model
 /// <summary>
 /// 
 /// </summary>
-class  _echo_post_200_response
+class  ItemIdArray
 {
 public:
-    _echo_post_200_response();
-    virtual ~_echo_post_200_response() = default;
+    ItemIdArray();
+    virtual ~ItemIdArray() = default;
 
 
     /// <summary>
@@ -52,28 +54,33 @@ public:
     /// </summary>
     bool validate(std::stringstream& msg, const std::string& pathPrefix) const;
 
-    bool operator==(const _echo_post_200_response& rhs) const;
-    bool operator!=(const _echo_post_200_response& rhs) const;
+    bool operator==(const ItemIdArray& rhs) const;
+    bool operator!=(const ItemIdArray& rhs) const;
 
     /////////////////////////////////////////////
-    /// _echo_post_200_response members
+    /// ItemIdArray members
 
     /// <summary>
     /// 
     /// </summary>
-    std::string getMessage() const;
-    void setMessage(std::string const& value);
-    bool messageIsSet() const;
-    void unsetMessage();
+    org::openapitools::server::model::ItemKey getItemKey() const;
+    void setItemKey(org::openapitools::server::model::ItemKey const& value);
+    /// <summary>
+    /// 
+    /// </summary>
+    std::vector<org::openapitools::server::model::ItemId> getItemIds() const;
+    void setItemIds(std::vector<org::openapitools::server::model::ItemId> const& value);
 
-    friend  void to_json(nlohmann::json& j, const _echo_post_200_response& o);
-    friend  void from_json(const nlohmann::json& j, _echo_post_200_response& o);
+    friend  void to_json(nlohmann::json& j, const ItemIdArray& o);
+    friend  void from_json(const nlohmann::json& j, ItemIdArray& o);
 protected:
-    std::string m_Message;
-    bool m_MessageIsSet;
+    org::openapitools::server::model::ItemKey m_ItemKey;
+
+    std::vector<org::openapitools::server::model::ItemId> m_ItemIds;
+
     
 };
 
 } // namespace org::openapitools::server::model
 
-#endif /* _echo_post_200_response_H_ */
+#endif /* ItemIdArray_H_ */

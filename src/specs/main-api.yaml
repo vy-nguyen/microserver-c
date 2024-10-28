@@ -8,7 +8,7 @@ servers:
   - url: http://localhost:8080
 
 paths:
-  /hello:
+  /public/hello:
     get:
       summary: Returns a greeting message
       description: This endpoint returns a greeting message.
@@ -24,7 +24,7 @@ paths:
                     type: string
                     example: "Hello, World!"
 
-  /echo:
+  /auth/echo:
     post:
       summary: Echoes back the received message
       description: This endpoint takes a message and echoes it back.
@@ -54,12 +54,34 @@ paths:
         '401':
           $ref: '#/components/responses/UnauthorizedError'
 
+  ## #######   Public API paths    #########
+  #
+  /public/counter:
+    $ref: 'public-api.yaml#/paths/~1counter'
+
+  ## #######   Auth API paths    ###########
+  #
+  /auth/counter:
+    $ref: 'auth-api.yaml#/paths/~1counter'
+
 components:
   securitySchemes:
     bearerAuth:
       type: http
       scheme: bearer
       bearerFormat: JWT
+
   responses:
     UnauthorizedError:
       description: Access token is missing or invalid
+
+  schemas:
+    GpsPos:
+      $ref: 'models-brief.yaml#/components/schemas/GpsPos'
+    KeyVal:
+      $ref: 'models-brief.yaml#/components/schemas/KeyVal'
+    Counter:
+      $ref: 'models-brief.yaml#/components/schemas/Counter'
+    ItemIdList:
+      $ref: 'models-brief.yaml#/components/schemas/ItemIdList'
+

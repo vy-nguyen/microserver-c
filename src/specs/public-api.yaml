@@ -1,0 +1,20 @@
+paths:
+  /counter:
+    post:
+      summary: Get counters for an itemId
+      description: This public API send list of itemIds to get counters for the itemId owner
+      requestBody:
+        description: Array of itemIds to retrieve counters
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'models-brief.yaml#/components/schemas/ItemIdArray'
+      responses:
+        '200':
+          description: Counter stats for items queried by the itemKey input
+          content:
+            application/json:
+              schema:
+                $ref: 'models-brief.yaml#/components/schemas/StatList'
+

@@ -1,0 +1,20 @@
+paths:
+  /counter:
+    post:
+      summary: Change counters for an itemKey
+      description: This auth API changes counters the itemKey can change.
+      requestBody:
+        description: Stat operation
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'models-brief.yaml#/components/schemas/StatOperation'
+      responses:
+        '200':
+          description: Counter stats for items changed by the op
+          content:
+            application/json:
+              schema:
+                $ref: 'models-brief.yaml#/components/schemas/StatList'
+

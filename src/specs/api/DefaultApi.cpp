@@ -33,8 +33,10 @@ void DefaultApi::init() {
 void DefaultApi::setupRoutes() {
     using namespace Pistache::Rest;
 
-    Routes::Post(*router, base + "/echo", Routes::bind(&DefaultApi::echo_post_handler, this));
-    Routes::Get(*router, base + "/hello", Routes::bind(&DefaultApi::hello_get_handler, this));
+    Routes::Post(*router, base + "/auth/counter", Routes::bind(&DefaultApi::auth_counter_post_handler, this));
+    Routes::Post(*router, base + "/auth/echo", Routes::bind(&DefaultApi::auth_echo_post_handler, this));
+    Routes::Post(*router, base + "/public/counter", Routes::bind(&DefaultApi::public_counter_post_handler, this));
+    Routes::Get(*router, base + "/public/hello", Routes::bind(&DefaultApi::public_hello_get_handler, this));
 
     // Default handler, called when a route is not found
     router->addCustomHandler(Routes::bind(&DefaultApi::default_api_default_handler, this));
@@ -70,24 +72,24 @@ std::pair<Pistache::Http::Code, std::string> DefaultApi::handleOperationExceptio
     return std::make_pair(Pistache::Http::Code::Internal_Server_Error, ex.what());
 }
 
-void DefaultApi::echo_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response) {
+void DefaultApi::auth_counter_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response) {
     try {
 
 
     // Getting the body param
     
-    _echo_post_request echoPostRequest;
+    StatOperation statOperation;
     
     try {
-        nlohmann::json::parse(request.body()).get_to(echoPostRequest);
-        echoPostRequest.validate();
+        nlohmann::json::parse(request.body()).get_to(statOperation);
+        statOperation.validate();
     } catch (std::exception &e) {
         this->handleParsingException(e, response);
         return;
     }
 
     try {
-        this->echo_post(echoPostRequest, response);
+        this->auth_counter_post(statOperation, response);
     } catch (Pistache::Http::HttpError &e) {
         response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
         return;
@@ -101,12 +103,74 @@ void DefaultApi::echo_post_handler(const Pistache::Rest::Request &request, Pista
     }
 
 }
-void DefaultApi::hello_get_handler(const Pistache::Rest::Request &, Pistache::Http::ResponseWriter response) {
+void DefaultApi::auth_echo_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response) {
+    try {
+
+
+    // Getting the body param
+    
+    _auth_echo_post_request authEchoPostRequest;
+    
+    try {
+        nlohmann::json::parse(request.body()).get_to(authEchoPostRequest);
+        authEchoPostRequest.validate();
+    } catch (std::exception &e) {
+        this->handleParsingException(e, response);
+        return;
+    }
+
+    try {
+        this->auth_echo_post(authEchoPostRequest, response);
+    } catch (Pistache::Http::HttpError &e) {
+        response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
+        return;
+    } catch (std::exception &e) {
+        this->handleOperationException(e, response);
+        return;
+    }
+
+    } catch (std::exception &e) {
+        response.send(Pistache::Http::Code::Internal_Server_Error, e.what());
+    }
+
+}
+void DefaultApi::public_counter_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response) {
+    try {
+
+
+    // Getting the body param
+    
+    ItemIdArray itemIdArray;
+    
+    try {
+        nlohmann::json::parse(request.body()).get_to(itemIdArray);
+        itemIdArray.validate();
+    } catch (std::exception &e) {
+        this->handleParsingException(e, response);
+        return;
+    }
+
+    try {
+        this->public_counter_post(itemIdArray, response);
+    } catch (Pistache::Http::HttpError &e) {
+        response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
+        return;
+    } catch (std::exception &e) {
+        this->handleOperationException(e, response);
+        return;
+    }
+
+    } catch (std::exception &e) {
+        response.send(Pistache::Http::Code::Internal_Server_Error, e.what());
+    }
+
+}
+void DefaultApi::public_hello_get_handler(const Pistache::Rest::Request &, Pistache::Http::ResponseWriter response) {
     try {
 
 
     try {
-        this->hello_get(response);
+        this->public_hello_get(response);
     } catch (Pistache::Http::HttpError &e) {
         response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
         return;

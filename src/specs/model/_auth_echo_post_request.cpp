@@ -11,7 +11,7 @@
 */
 
 
-#include "_echo_post_request.h"
+#include "_auth_echo_post_request.h"
 #include "Helpers.h"
 
 #include <sstream>
@@ -19,14 +19,14 @@
 namespace org::openapitools::server::model
 {
 
-_echo_post_request::_echo_post_request()
+_auth_echo_post_request::_auth_echo_post_request()
 {
     m_Message = "";
     m_MessageIsSet = false;
     
 }
 
-void _echo_post_request::validate() const
+void _auth_echo_post_request::validate() const
 {
     std::stringstream msg;
     if (!validate(msg))
@@ -35,21 +35,21 @@ void _echo_post_request::validate() const
     }
 }
 
-bool _echo_post_request::validate(std::stringstream& msg) const
+bool _auth_echo_post_request::validate(std::stringstream& msg) const
 {
     return validate(msg, "");
 }
 
-bool _echo_post_request::validate(std::stringstream& msg, const std::string& pathPrefix) const
+bool _auth_echo_post_request::validate(std::stringstream& msg, const std::string& pathPrefix) const
 {
     bool success = true;
-    const std::string _pathPrefix = pathPrefix.empty() ? "_echo_post_request" : pathPrefix;
+    const std::string _pathPrefix = pathPrefix.empty() ? "_auth_echo_post_request" : pathPrefix;
 
         
     return success;
 }
 
-bool _echo_post_request::operator==(const _echo_post_request& rhs) const
+bool _auth_echo_post_request::operator==(const _auth_echo_post_request& rhs) const
 {
     return
     
@@ -60,12 +60,12 @@ bool _echo_post_request::operator==(const _echo_post_request& rhs) const
     ;
 }
 
-bool _echo_post_request::operator!=(const _echo_post_request& rhs) const
+bool _auth_echo_post_request::operator!=(const _auth_echo_post_request& rhs) const
 {
     return !(*this == rhs);
 }
 
-void to_json(nlohmann::json& j, const _echo_post_request& o)
+void to_json(nlohmann::json& j, const _auth_echo_post_request& o)
 {
     j = nlohmann::json::object();
     if(o.messageIsSet())
@@ -73,7 +73,7 @@ void to_json(nlohmann::json& j, const _echo_post_request& o)
     
 }
 
-void from_json(const nlohmann::json& j, _echo_post_request& o)
+void from_json(const nlohmann::json& j, _auth_echo_post_request& o)
 {
     if(j.find("message") != j.end())
     {
@@ -83,20 +83,20 @@ void from_json(const nlohmann::json& j, _echo_post_request& o)
     
 }
 
-std::string _echo_post_request::getMessage() const
+std::string _auth_echo_post_request::getMessage() const
 {
     return m_Message;
 }
-void _echo_post_request::setMessage(std::string const& value)
+void _auth_echo_post_request::setMessage(std::string const& value)
 {
     m_Message = value;
     m_MessageIsSet = true;
 }
-bool _echo_post_request::messageIsSet() const
+bool _auth_echo_post_request::messageIsSet() const
 {
     return m_MessageIsSet;
 }
-void _echo_post_request::unsetMessage()
+void _auth_echo_post_request::unsetMessage()
 {
     m_MessageIsSet = false;
 }

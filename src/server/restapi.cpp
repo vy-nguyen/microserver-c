@@ -1,3 +1,5 @@
+#include "ItemIdArray.h"
+#include "StatOperation.h"
 #include <seal/api.h>
 
 namespace seal {
@@ -9,14 +11,22 @@ RestApi::RestApi(const std::shared_ptr<Rest::Router> &router) : api::DefaultApi(
 {
 }
 
-void RestApi::echo_post(const model::_echo_post_request &reqt, Response &resp)
+void RestApi::auth_echo_post(const model::_auth_echo_post_request &reqt, Response &resp)
 {
     resp.send(Http::Code::Ok, "Echo post is called\n");
 }
 
-void RestApi::hello_get(Response &resp)
+void RestApi::public_hello_get(Response &resp)
 {
     resp.send(Http::Code::Ok, "Hello get is called\n");
+}
+
+void RestApi::public_counter_post(const model::ItemIdArray &array, Response &resp)
+{
+}
+
+void RestApi::auth_counter_post(const model::StatOperation &stats, Response &resp)
+{
 }
 
 }

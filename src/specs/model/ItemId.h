@@ -10,15 +10,16 @@
 * Do not edit the class manually.
 */
 /*
- * _hello_get_200_response.h
+ * ItemId.h
  *
  * 
  */
 
-#ifndef _hello_get_200_response_H_
-#define _hello_get_200_response_H_
+#ifndef ItemId_H_
+#define ItemId_H_
 
 
+#include "IdKind.h"
 #include <string>
 #include <nlohmann/json.hpp>
 
@@ -28,11 +29,11 @@ namespace org::openapitools::server::model
 /// <summary>
 /// 
 /// </summary>
-class  _hello_get_200_response
+class  ItemId
 {
 public:
-    _hello_get_200_response();
-    virtual ~_hello_get_200_response() = default;
+    ItemId();
+    virtual ~ItemId() = default;
 
 
     /// <summary>
@@ -52,28 +53,40 @@ public:
     /// </summary>
     bool validate(std::stringstream& msg, const std::string& pathPrefix) const;
 
-    bool operator==(const _hello_get_200_response& rhs) const;
-    bool operator!=(const _hello_get_200_response& rhs) const;
+    bool operator==(const ItemId& rhs) const;
+    bool operator!=(const ItemId& rhs) const;
 
     /////////////////////////////////////////////
-    /// _hello_get_200_response members
+    /// ItemId members
 
     /// <summary>
     /// 
     /// </summary>
-    std::string getMessage() const;
-    void setMessage(std::string const& value);
-    bool messageIsSet() const;
-    void unsetMessage();
+    std::string getUuid() const;
+    void setUuid(std::string const& value);
+    /// <summary>
+    /// 
+    /// </summary>
+    org::openapitools::server::model::IdKind getKind() const;
+    void setKind(org::openapitools::server::model::IdKind const& value);
+    /// <summary>
+    /// 
+    /// </summary>
+    int64_t getSeqNo() const;
+    void setSeqNo(int64_t const value);
 
-    friend  void to_json(nlohmann::json& j, const _hello_get_200_response& o);
-    friend  void from_json(const nlohmann::json& j, _hello_get_200_response& o);
+    friend  void to_json(nlohmann::json& j, const ItemId& o);
+    friend  void from_json(const nlohmann::json& j, ItemId& o);
 protected:
-    std::string m_Message;
-    bool m_MessageIsSet;
+    std::string m_Uuid;
+
+    org::openapitools::server::model::IdKind m_Kind;
+
+    int64_t m_SeqNo;
+
     
 };
 
 } // namespace org::openapitools::server::model
 
-#endif /* _hello_get_200_response_H_ */
+#endif /* ItemId_H_ */

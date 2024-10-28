@@ -28,9 +28,12 @@
 #include <optional>
 #include <utility>
 
-#include "_echo_post_200_response.h"
-#include "_echo_post_request.h"
-#include "_hello_get_200_response.h"
+#include "ItemIdArray.h"
+#include "StatList.h"
+#include "StatOperation.h"
+#include "_auth_echo_post_200_response.h"
+#include "_auth_echo_post_request.h"
+#include "_public_hello_get_200_response.h"
 
 namespace org::openapitools::server::api
 {
@@ -46,8 +49,10 @@ public:
 private:
     void setupRoutes();
 
-    void echo_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
-    void hello_get_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
+    void auth_counter_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
+    void auth_echo_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
+    void public_counter_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
+    void public_hello_get_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
     void default_api_default_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
 
     /// <summary>
@@ -79,20 +84,36 @@ private:
     virtual std::pair<Pistache::Http::Code, std::string> handleOperationException(const std::exception& ex) const noexcept;
 
     /// <summary>
+    /// Change counters for an itemKey
+    /// </summary>
+    /// <remarks>
+    /// This auth API changes counters the itemKey can change.
+    /// </remarks>
+    /// <param name="statOperation">Stat operation</param>
+    virtual void auth_counter_post(const org::openapitools::server::model::StatOperation &statOperation, Pistache::Http::ResponseWriter &response) = 0;
+    /// <summary>
     /// Echoes back the received message
     /// </summary>
     /// <remarks>
     /// This endpoint takes a message and echoes it back.
     /// </remarks>
-    /// <param name="echoPostRequest">Message to echo back</param>
-    virtual void echo_post(const org::openapitools::server::model::_echo_post_request &echoPostRequest, Pistache::Http::ResponseWriter &response) = 0;
+    /// <param name="authEchoPostRequest">Message to echo back</param>
+    virtual void auth_echo_post(const org::openapitools::server::model::_auth_echo_post_request &authEchoPostRequest, Pistache::Http::ResponseWriter &response) = 0;
+    /// <summary>
+    /// Get counters for an itemId
+    /// </summary>
+    /// <remarks>
+    /// This public API send list of itemIds to get counters for the itemId owner
+    /// </remarks>
+    /// <param name="itemIdArray">Array of itemIds to retrieve counters</param>
+    virtual void public_counter_post(const org::openapitools::server::model::ItemIdArray &itemIdArray, Pistache::Http::ResponseWriter &response) = 0;
     /// <summary>
     /// Returns a greeting message
     /// </summary>
     /// <remarks>
     /// This endpoint returns a greeting message.
     /// </remarks>
-    virtual void hello_get(Pistache::Http::ResponseWriter &response) = 0;
+    virtual void public_hello_get(Pistache::Http::ResponseWriter &response) = 0;
 
 };
 

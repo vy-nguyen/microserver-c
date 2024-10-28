@@ -29,9 +29,12 @@
 #include <DefaultApi.h>
 
 
-#include "_echo_post_200_response.h"
-#include "_echo_post_request.h"
-#include "_hello_get_200_response.h"
+#include "ItemIdArray.h"
+#include "StatList.h"
+#include "StatOperation.h"
+#include "_auth_echo_post_200_response.h"
+#include "_auth_echo_post_request.h"
+#include "_public_hello_get_200_response.h"
 
 namespace org::openapitools::server::api
 {
@@ -43,8 +46,10 @@ public:
     explicit DefaultApiImpl(const std::shared_ptr<Pistache::Rest::Router>& rtr);
     ~DefaultApiImpl() override = default;
 
-    void echo_post(const _echo_post_request &echoPostRequest, Pistache::Http::ResponseWriter &response);
-    void hello_get(Pistache::Http::ResponseWriter &response);
+    void auth_counter_post(const StatOperation &statOperation, Pistache::Http::ResponseWriter &response);
+    void auth_echo_post(const _auth_echo_post_request &authEchoPostRequest, Pistache::Http::ResponseWriter &response);
+    void public_counter_post(const ItemIdArray &itemIdArray, Pistache::Http::ResponseWriter &response);
+    void public_hello_get(Pistache::Http::ResponseWriter &response);
 
 };
 

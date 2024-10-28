@@ -10,13 +10,13 @@
 * Do not edit the class manually.
 */
 /*
- * _echo_post_request.h
+ * KeyVal.h
  *
  * 
  */
 
-#ifndef _echo_post_request_H_
-#define _echo_post_request_H_
+#ifndef KeyVal_H_
+#define KeyVal_H_
 
 
 #include <string>
@@ -28,11 +28,11 @@ namespace org::openapitools::server::model
 /// <summary>
 /// 
 /// </summary>
-class  _echo_post_request
+class  KeyVal
 {
 public:
-    _echo_post_request();
-    virtual ~_echo_post_request() = default;
+    KeyVal();
+    virtual ~KeyVal() = default;
 
 
     /// <summary>
@@ -52,28 +52,33 @@ public:
     /// </summary>
     bool validate(std::stringstream& msg, const std::string& pathPrefix) const;
 
-    bool operator==(const _echo_post_request& rhs) const;
-    bool operator!=(const _echo_post_request& rhs) const;
+    bool operator==(const KeyVal& rhs) const;
+    bool operator!=(const KeyVal& rhs) const;
 
     /////////////////////////////////////////////
-    /// _echo_post_request members
+    /// KeyVal members
 
     /// <summary>
     /// 
     /// </summary>
-    std::string getMessage() const;
-    void setMessage(std::string const& value);
-    bool messageIsSet() const;
-    void unsetMessage();
+    std::string getKey() const;
+    void setKey(std::string const& value);
+    /// <summary>
+    /// 
+    /// </summary>
+    std::string getValue() const;
+    void setValue(std::string const& value);
 
-    friend  void to_json(nlohmann::json& j, const _echo_post_request& o);
-    friend  void from_json(const nlohmann::json& j, _echo_post_request& o);
+    friend  void to_json(nlohmann::json& j, const KeyVal& o);
+    friend  void from_json(const nlohmann::json& j, KeyVal& o);
 protected:
-    std::string m_Message;
-    bool m_MessageIsSet;
+    std::string m_Key;
+
+    std::string m_Value;
+
     
 };
 
 } // namespace org::openapitools::server::model
 
-#endif /* _echo_post_request_H_ */
+#endif /* KeyVal_H_ */

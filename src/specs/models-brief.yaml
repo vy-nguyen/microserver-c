@@ -1,0 +1,265 @@
+
+penapi: "3.0.0"
+info:
+  title: Brief model data
+  version: "1.0.0"
+paths: {}
+components:
+  schemas:
+    IdKind:
+      type: string
+      enum:
+        - ucat
+        - sell
+        - buyer
+        - cust
+        - cuser
+        - prof
+        - usec
+        - uwar
+        - ucon
+        - uprd
+        - utrx
+        - uwrk
+        - dltx
+        - deal
+        - refs
+        - feed
+        - mesg
+        - blog
+        - art
+        - book
+        - chapter
+        - str
+        - fav
+        - ''
+
+    ItemId:
+      type: object
+      required:
+        - uuid
+        - kind
+        - seqNo
+      properties:
+        uuid:
+          type: string
+        kind:
+          $ref: '#/components/schemas/IdKind'
+        seqNo:
+          type: integer
+          format: int64
+          default: 0
+
+    ItemIdArray:
+      type: object
+      required:
+        - itemKey
+        - itemIds
+      properties:
+        itemKey:
+          $ref: '#/components/schemas/ItemKey'
+        itemIds:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemId'
+
+    ItemIdList:
+      type: object
+      properties:
+        op:
+          type: string
+        regCode:
+          type: string
+        parentUuid:
+          type: string
+        opUuid:
+          type: string
+        opKind:
+          type: string
+        opSeq:
+          type: integer
+          format: int64
+          default: 0
+        opPage:
+          type: integer
+          format: int32
+          default: 0
+        records:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemId'
+        filter:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemId'
+
+    ItemKey:
+      type: object
+      required:
+        - tagUuid
+        - ownerUuid
+        - kind
+        - seqNo
+      properties:
+        tagUuid:
+          type: string
+          default: ''
+        elemUuid:
+          type: string
+          default: ''
+        ownerUuid:
+          type: string
+          default: ''
+        kind:
+          $ref: '#/components/schemas/IdKind'
+        seqNo:
+          type: integer
+          format: int64
+          default: 0
+
+    ListCommon:
+      type: object
+      required:
+        - pageInfo
+      properties:
+        pageInfo:
+          $ref: '#/components/schemas/PageInfo'
+        extras:
+          type: array
+          items:
+            $ref: '#/components/schemas/ItemId'
+
+    PageInfo:
+      type: object
+
+    GpsPos:
+      type: object
+      required:
+        - itemId
+        - lng
+        - lat
+      properties:
+        itemId:
+          $ref: '#/components/schemas/ItemId'
+        lng:
+          type: number
+          format: double
+        lat:
+          type: number
+          format: doublw
+
+    KeyVal:
+      type: object
+      required:
+        - key
+        - value
+      properties:
+        key:
+          type: string
+        value:
+          type: string
+
+    Counter:
+      type: object
+      required:
+        - name
+        - value
+      properties:
+        name:
+          type: string
+        value:
+          type: integer
+          default: 0
+
+    Stats:
+      type: object
+      required:
+        - itemId
+      properties:
+        itemId:
+          $ref: '#/components/schemas/ItemId'
+        likes:
+          type: integer
+          default: 0
+        bookmark:
+          type: integer
+          default: 0
+        shares:
+          type: integer
+          default: 0
+        extras:
+          type: array
+          items:
+            $ref: '#/components/schemas/Counter'
+
+    StatList:
+      type: object
+      required:
+        - page
+        - list
+      properties:
+        page:
+          $ref: '#/components/schemas/ListCommon'
+        list:
+          type: array
+          items:
+            $ref: '#/components/schemas/Stats'
+
+    Signature:
+      type: object
+      required:
+        - signedHash
+        - sValue
+        - rValue
+        - op
+      properties:
+        signedHash:
+          type: string
+        sValue:
+          type: string
+          default: ''
+        rValue:
+          type: string
+          default: ''
+        op:
+          type: string
+          default: ''
+
+    StatOp:
+      type: string
+      enum:
+        - inc
+        - dec
+        - link
+        - unlink
+        - add
+        - minus
+
+    StatElement:
+      type: object
+      required:
+        - itemId
+        - op
+      properties:
+        itemId:
+          $ref: '#/components/schemas/ItemId'
+        peerId:
+          $ref: '#/components/schemas/ItemId'
+        counter:
+          $ref: '#/components/schemas/Counter'
+
+    StatOperation:
+      type: object
+      required:
+        - itemKey
+        - signature
+        - values
+      properties:
+        itemKey:
+          $ref: '#/components/schemas/ItemKey'
+        signature:
+          $ref: '#/components/schemas/Signature'
+        values:
+          type: array
+          items:
+            $ref: '#/components/schemas/StatElement'
