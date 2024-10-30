@@ -5,6 +5,7 @@
 #include <pistache/http.h>
 #include <pistache/router.h>
 #include <pistache/mime.h>
+#include "seal/config.h"
 
 namespace seal {
 
@@ -12,10 +13,8 @@ using namespace Pistache;
 
 class SealSvc {
   public:
-    static const size_t MaxRequestSize = (64 << 10);
-    static const size_t MaxResponseSize = (64 << 10);
-
-    SealSvc(uint16_t port = 8000, unsigned int numThr = std::thread::hardware_concurrency()) :
+    SealSvc(uint16_t port = Config::ListenPort,
+            unsigned int numThr = std::thread::hardware_concurrency()) :
         m_portNum(port),
         m_numThreads(numThr),
         m_address(Ipv4::any(), Port(port)),
@@ -24,8 +23,8 @@ class SealSvc {
     {
         auto opts = Http::Endpoint::options().threads(m_numThreads);
         opts.flags(Tcp::Options::ReuseAddr);
-        opts.maxRequestSize(MaxRequestSize);
-        opts.maxResponseSize(MaxResponseSize);
+        opts.maxRequestSize(Config::MaxRequestSize);
+        opts.maxResponseSize(Config::MaxResponseSize);
         m_endPoint->init(opts);
     }
 
@@ -38,6 +37,7 @@ class SealSvc {
     uint16_t      m_portNum;
     unsigned int  m_numThreads;
     Address       m_address;
+
     std::shared_ptr<Rest::Router>   m_router;
     std::shared_ptr<Http::Endpoint> m_endPoint;
 };

@@ -23,7 +23,9 @@ http_stub_sources = [
   dir_specs / 'model/Stats.cpp',
   dir_src / 'service.cpp',
   dir_src / 'auth.cpp',
+  dir_src / 'public.cpp',
   dir_src / 'restapi.cpp',
+  dir_src / 'restapi_impl.cpp',
 ]
 
 # Unit test

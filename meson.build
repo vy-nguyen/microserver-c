@@ -39,6 +39,7 @@ project_dependencies = [
   pistache_dep,
   soci_lib,
   jwt_cpp_lib,
+  dependency('openssl', static: true, required: true)
 ]
 
 inc_dirs = include_directories(
@@ -51,7 +52,10 @@ subdir('src/server')
 
 http_stub_lib = static_library(
   'http_stub_lib', http_stub_sources,
-  include_directories: inc_dirs,
+  include_directories: [
+    inc_dirs,
+    include_directories('src/server'),
+  ],
   dependencies: project_dependencies,
 )
 
