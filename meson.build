@@ -72,4 +72,4 @@ executable(
 
 # Unit test dependency
 #
-#subdir('tests')
+subdir('tests')

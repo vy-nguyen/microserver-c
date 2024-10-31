@@ -2,7 +2,7 @@
 
 namespace seal {
 
-ObjectId ZeroId = ObjectId();
+ObjectId ObjectId::ZeroID = ObjectId();
 
 void compute_sha1(const unsigned char *const buf, size_t len, ObjectId &hash)
 {

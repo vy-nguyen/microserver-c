@@ -63,7 +63,7 @@ class ObjectId {
 
     bool operator ==(const ObjectId &other) const {
         if (this != &other) {
-            return std::memcmp(m_data, other.m_data, sizeof(m_data));
+            return std::memcmp(m_data, other.m_data, sizeof(m_data)) == 0;
         }
         return true;
     }
