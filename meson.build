@@ -42,32 +42,34 @@ project_dependencies = [
   dependency('openssl', static: true, required: true)
 ]
 
-inc_dirs = include_directories(
+project_include_dirs = include_directories(
   'src/include',
   'src/specs/api',
   'src/specs/model',
 )
 
+# Build static lib for subdirs
+#
 subdir('src/server')
-
-http_stub_lib = static_library(
-  'http_stub_lib', http_stub_sources,
-  include_directories: [
-    inc_dirs,
-    include_directories('src/server'),
-  ],
-  dependencies: project_dependencies,
-)
+subdir('src/db')
+subdir('src/lib')
 
 #
 # Define the executable to be built from the src directory
+#
 executable(
   'trustsrv',
-  include_directories: inc_dirs,
+  include_directories: project_include_dirs,
   dependencies: project_dependencies,
   sources: project_source,
   link_with: [
-    http_stub_lib,
+    server_lib,
+    db_lib,
+    seal_lib,
   ],
   install: true,
 )
+
+# Unit test dependency
+#
+#subdir('tests')

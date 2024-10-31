@@ -9,3 +9,5 @@ subprojects/rapidjson.wrap
 subprojects/soci
 subprojects/nlohmann
 subprojects/jwt-cpp
+subprojects/gtest.wrap
+subprojects/googletest-1.14.0

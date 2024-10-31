@@ -1,7 +1,9 @@
 #include <iostream>
 #include <seal/service.h>
+#include <crypto/objectid.h>
 
 int main() {
+    seal::ObjectId c = seal::ObjectId();
     try {
         seal::SealSvc service;
         service.run();
