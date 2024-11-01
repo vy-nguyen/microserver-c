@@ -1,7 +1,6 @@
 
 #pragma once
 
-#include <iostream>
 #include <cctype>
 #include <string>
 #include <cstring>
@@ -10,9 +9,12 @@
 
 namespace seal {
 
+class ObjectIdPtr;
+
 class ObjectId {
   public:
     static ObjectId ZeroID;
+    friend class ObjectIdPtr;
 
     ObjectId() {
         std::memset(m_data, 0, sizeof(m_data));
@@ -74,6 +76,8 @@ class ObjectId {
         return true;
     }
 
+    bool operator ==(const ObjectIdPtr &other) const;
+
     ObjectId &assign(const unsigned char *const buf) {
         std::copy(buf, buf + sizeof(m_data), m_data);
         return *this;
@@ -90,11 +94,104 @@ class ObjectId {
         return std::string(hex);
     }
 
-    static void compute_sha1(const unsigned char *const buf, size_t len, ObjectId &hash);
-    static void compute_sha1(const std::string &buf, ObjectId &hash);
+    friend void compute_sha1(const unsigned char *const buf, int len, ObjectId &hash);
+
+    static inline void sha1(const std::string &buf, ObjectId &hash) {
+        compute_sha1((unsigned char *)buf.c_str(), buf.size(), hash);
+    }
 
   private:
     unsigned char m_data[SHA_DIGEST_LENGTH];
+};
+
+class ObjectIdPtr {
+  public:
+    ObjectIdPtr() : m_data(nullptr) {}
+    ~ObjectIdPtr() {
+        delete[] m_data;
+    }
+
+    explicit ObjectIdPtr(ObjectId &other) {
+        m_data = new unsigned char [SHA_DIGEST_LENGTH];
+        std::copy(other.m_data, other.m_data + SHA_DIGEST_LENGTH, m_data);
+    }
+
+    explicit ObjectIdPtr(unsigned char *data) {
+        m_data = data;
+    }
+
+    // Move semantic
+    //
+    ObjectIdPtr(ObjectIdPtr &&other) noexcept {
+        m_data = other.m_data;
+        other.m_data = nullptr;
+    }
+
+    unsigned char *const move() {
+        auto ret = m_data;
+        m_data = nullptr;
+        return ret;
+    }
+
+    // Copy the buffer out.  The caller owns the returned buffer.
+    //
+    unsigned char *const copy() const {
+        if (m_data != nullptr) {
+            auto out = new unsigned char [SHA_DIGEST_LENGTH];
+            std::copy(m_data, m_data + SHA_DIGEST_LENGTH, out);
+            return out;
+        }
+        return nullptr;
+    }
+
+    // Operators
+    //
+    bool operator ==(const ObjectIdPtr &other) const {
+        if (this != &other) {
+            if (m_data != nullptr && other.m_data != nullptr) {
+                return std::memcmp(m_data, other.m_data, SHA_DIGEST_LENGTH) == 0;
+            }
+            return false;
+        }
+        return true;
+    }
+
+    bool operator ==(const ObjectId &other) const {
+        if (m_data != nullptr) {
+            return std::memcmp(m_data, other.m_data, SHA_DIGEST_LENGTH) == 0;
+        }
+        return false;
+    }
+
+    ObjectIdPtr &operator =(const ObjectId &other) {
+        if (m_data != nullptr) {
+            delete[] m_data;
+        }
+        m_data = new unsigned char[SHA_DIGEST_LENGTH];
+        std::copy(other.m_data, other.m_data + SHA_DIGEST_LENGTH, m_data);
+        return *this;
+    }
+
+    std::string to_string() const {
+        if (m_data != nullptr) {
+            return ObjectId(m_data).to_string();
+        }
+        return std::string("");
+    }
+
+    bool isEmpty() {
+        return m_data == nullptr;
+    }
+
+    static ObjectIdPtr compute_sha1(const unsigned char *const buf, int len);
+    static ObjectIdPtr sha1(const std::string &buf);
+
+    // Disallow copy.
+    ObjectIdPtr(const ObjectIdPtr &) = delete;
+    ObjectIdPtr &operator =(const ObjectIdPtr &) = delete;
+
+  private:
+    unsigned char *m_data;
 };
 
 }
