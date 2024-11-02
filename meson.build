@@ -10,14 +10,21 @@ project_source = [
 
 # Fetch the json lib required by openapi
 #
+
 # Setup cmake project for mysql connector
 #
 cmake = import('cmake')
-soci_proj = cmake.subproject('soci', cmake_options: [
-  '-DSOCI_TESTS=OFF',
-  '-DSOCI_SHARED=ON',
-  '-DSOCI_EMPTY=ON'
-])
+soci_proj = cmake.subproject('soci',
+  cmake_options: [
+    '-DCMAKE_CXX_STANDARD=11',
+    '-DCMAKE_CXX_STANDARD_REQUIRED=ON',
+    '-DCMAKE_CXX_EXTENSIONS=OFF',
+    '-DSOCI_MYSQL=ON',
+    '-DSOCI_TESTS=OFF',
+    '-DSOCI_SHARED=ON',
+    '-DSOCI_EMPTY=ON',
+  ],
+)
 soci_lib = soci_proj.dependency('soci_core')
 
 jwt_cpp_proj = cmake.subproject('jwt-cpp', cmake_options: [])
@@ -46,6 +53,7 @@ project_include_dirs = include_directories(
   'src/include',
   'src/specs/api',
   'src/specs/model',
+  '/usr/include/mysql',
 )
 
 # Build static lib for subdirs

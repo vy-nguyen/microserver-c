@@ -78,9 +78,17 @@ class ObjectId {
 
     bool operator ==(const ObjectIdPtr &other) const;
 
-    ObjectId &assign(const unsigned char *const buf) {
+    ObjectId &assign(const char *const buf) {
         std::copy(buf, buf + sizeof(m_data), m_data);
         return *this;
+    }
+
+    const unsigned char *const get_raw() const {
+        return m_data;
+    }
+
+    std::string raw() const {
+        return std::string(reinterpret_cast<const char *>(m_data), SHA_DIGEST_LENGTH);
     }
 
     std::string to_string() const {
@@ -142,6 +150,14 @@ class ObjectIdPtr {
             return out;
         }
         return nullptr;
+    }
+
+    const unsigned char *const get_raw() const {
+        return m_data;
+    }
+
+    std::string raw() const {
+        return std::string(reinterpret_cast<const char *>(m_data), SHA_DIGEST_LENGTH);
     }
 
     // Operators

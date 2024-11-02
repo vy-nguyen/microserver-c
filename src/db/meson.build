@@ -6,6 +6,7 @@ _db_sources = [
   _db_dir / 'db-driver.cpp',
   _db_dir / 'db-model.cpp',
   _db_dir / 'repository.cpp',
+  _db_model_dir / 'tag_attr.cpp',
 ]
 
 _db_include = [
