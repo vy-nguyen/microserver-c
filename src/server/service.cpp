@@ -31,7 +31,6 @@ void SealSvc::connect_db()
         .userPassKey(Config::EnvDBPassKey);
 
     auto connect = m_dbpool->get();
-    m_dbpool->put(connect);
 }
 
 }

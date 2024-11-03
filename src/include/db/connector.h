@@ -1,6 +1,5 @@
 #pragma once
 
-#include <queue>
 #include <mutex>
 #include <memory>
 #include <soci/mysql/soci-mysql.h>
@@ -12,21 +11,29 @@ class Connector;
 
 class ConnectorPool {
   public:
-    explicit ConnectorPool(DbType type, int max = 10)
-        : m_dbType(type), m_maxElem(max), m_elem(0) {}
+    friend class Connector;
+
+    ConnectorPool(const ConnectorPool &) = delete;
+    ConnectorPool &operator =(const ConnectorPool &) = delete;
+
+    explicit ConnectorPool(DbType type, int max = 10) :
+        m_dbType(type), m_cidx(0), m_max(max)
+    {
+        m_queue.reserve(m_max);
+    }
 
     ConnectorPool &dbHost(const std::string_view &name) {
-        m_dbHost = std::make_unique<std::string>(name);
+        m_dbHost = std::make_unique<std::string_view>(name);
         return *this;
     }
 
     ConnectorPool &dbName(const std::string_view &db) {
-        m_dbName = std::make_unique<std::string>(db);
+        m_dbName = std::make_unique<std::string_view>(db);
         return *this;
     }
 
     ConnectorPool &userName(const std::string_view &user) {
-        m_userName = std::make_unique<std::string>(user);
+        m_userName = std::make_unique<std::string_view>(user);
         return *this;
     }
 
@@ -35,7 +42,7 @@ class ConnectorPool {
         if (value == nullptr) {
             throw "Missing env key " + std::string(envKey);
         }
-        m_password = std::make_unique<std::string>(std::string(value));
+        m_password = std::make_unique<std::string_view>(std::string_view(value));
         return *this;
     }
 
@@ -44,37 +51,45 @@ class ConnectorPool {
         return *this;
     }
 
-    std::shared_ptr<Connector> get();
-    void put(std::shared_ptr<Connector> connector);
+    const Connector get();
 
   private:
     DbType m_dbType;
     int    m_dbPort = 3306;
-    int    m_maxElem;
-    int    m_elem;
-    std::unique_ptr<std::string> m_dbHost;
-    std::unique_ptr<std::string> m_dbName;
-    std::unique_ptr<std::string> m_userName;
-    std::unique_ptr<std::string> m_password;
+    int    m_cidx;
+    size_t m_max;
+    std::unique_ptr<const std::string_view> m_dbHost;
+    std::unique_ptr<const std::string_view> m_dbName;
+    std::unique_ptr<const std::string_view> m_userName;
+    std::unique_ptr<const std::string_view> m_password;
 
-    std::mutex m_mtx;
-    std::queue<std::shared_ptr<Connector>> m_queue;
+    std::mutex             m_mtx;
+    std::vector<Connector> m_queue;
+
+    void put(const Connector &connector);
 };
 
 class Connector {
   public:
     friend class ConnectorPool;
+    Connector() = default;
+    Connector(const Connector &) = default;
+    Connector &operator =(const Connector &) = default;
 
-    std::shared_ptr<soci::session> session() {
+    const std::shared_ptr<soci::session> session() const {
         return m_session;
+    }
+
+    bool is_valid() const {
+        return m_session != nullptr;
     }
 
   private:
     Connector(int port,
-            const std::string &host,
-            const std::string &dbName,
-            const std::string &user,
-            const std::string &pass);
+            const std::string_view &host,
+            const std::string_view &dbName,
+            const std::string_view &user,
+            const std::string_view &pass);
 
     std::shared_ptr<soci::session> m_session;
 };

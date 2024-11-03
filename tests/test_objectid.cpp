@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "crypto/objectid.h"
+#include "db/connector.h"
 
 using namespace seal;
 
@@ -74,3 +75,10 @@ void testHash() {
 TEST(ObjectIdTest, HashTest) {
     testHash();
 }
+
+void connectorScope(ConnectorPool &pool) {
+}
+
+TEST(DBConnector, Scope) {
+}
+

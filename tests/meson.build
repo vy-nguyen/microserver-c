@@ -20,13 +20,14 @@ unit_test_exe = executable(
   dependencies: [
     seal_lib_dep,
     db_lib_dep,
+    soci_lib,
     gtest_dep,
     gtest_main_dep,
   ],
-  #link_with: [
-  #  seal_lib,
-  #  db_lib,
-  #],
+  link_with: [
+    seal_lib,
+    db_lib,
+  ],
   include_directories: project_include_dirs,
 )
 

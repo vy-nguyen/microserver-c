@@ -5,48 +5,37 @@
 
 namespace seal {
 
-std::shared_ptr<Connector> ConnectorPool::get() {
+const Connector ConnectorPool::get() {
     std::lock_guard<std::mutex> lock(m_mtx);
 
     if (m_dbType != MySql) {
-        return nullptr;
+        return Connector();
     }
-    if (!m_queue.empty()) {
-        auto connector = m_queue.front();
-        m_queue.pop();
-        return connector;
-    }
-    if (m_elem < m_maxElem) {
+    if (m_queue.size() < m_max) {
         try {
-            auto out = std::make_shared<Connector>(Connector(
-                        m_dbPort,
-                        *m_dbHost,
-                        *m_dbName,
-                        *m_userName,
-                        *m_password
-                    ));
-            if (++m_elem >= m_maxElem) {
-                return nullptr;
-            }
-            return out;
+            m_queue.emplace_back(Connector(m_dbPort,
+                    *m_dbHost,
+                    *m_dbName,
+                    *m_userName,
+                    *m_password
+                ));
+            return m_queue.back();
 
         } catch (const soci::soci_error &err) {
             std::cerr << "Failed to connect: " << err.what() << std::endl;
         }
+        return Connector();
     }
-    return nullptr;
-}
-
-void ConnectorPool::put(std::shared_ptr<Connector> connector) {
-    std::lock_guard<std::mutex> lock(m_mtx);
-    m_queue.push(connector);
+    auto idx = m_cidx;
+    m_cidx = (m_cidx + 1) % m_max;
+    return m_queue[idx];
 }
 
 Connector::Connector(int port,
-        const std::string &host,
-        const std::string &dbName,
-        const std::string &user,
-        const std::string &pass) {
+        const std::string_view &host,
+        const std::string_view &dbName,
+        const std::string_view &user,
+        const std::string_view &pass) {
     std::ostringstream oss;
     oss << "db=" << dbName
         << " user=" << user
