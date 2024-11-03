@@ -6,6 +6,7 @@
 #include <pistache/router.h>
 #include <pistache/mime.h>
 #include "seal/config.h"
+#include "db/connector.h"
 
 namespace seal {
 
@@ -37,9 +38,12 @@ class SealSvc {
     uint16_t      m_portNum;
     unsigned int  m_numThreads;
     Address       m_address;
-
+    
+    std::shared_ptr<ConnectorPool>  m_dbpool;
     std::shared_ptr<Rest::Router>   m_router;
     std::shared_ptr<Http::Endpoint> m_endPoint;
+
+    void connect_db();
 };
 
 }

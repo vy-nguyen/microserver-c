@@ -11,6 +11,10 @@ class Config {
     static constexpr size_t   MaxResponseSize = (128 << 10);
 
     static constexpr std::string_view EnvSecretName = "JWT_SECRET";
+    static constexpr std::string_view EnvDBPassKey  = "DB_USER_PASS";
+    static constexpr std::string_view dbName        = "keotrust";
+    static constexpr std::string_view dbUser        = "socnet";
+    static constexpr std::string_view dbHost        = "localhost";
 };
 
 }

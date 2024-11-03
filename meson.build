@@ -25,7 +25,11 @@ soci_proj = cmake.subproject('soci',
     '-DSOCI_EMPTY=ON',
   ],
 )
-soci_lib = soci_proj.dependency('soci_core')
+# message('CMake targets:\n - ' + '\n - '.join(soci_proj.target_list()))
+soci_lib = [
+  soci_proj.dependency('soci_core_static'),
+  soci_proj.dependency('soci_mysql_static'),
+]
 
 jwt_cpp_proj = cmake.subproject('jwt-cpp', cmake_options: [])
 jwt_cpp_lib = jwt_cpp_proj.dependency('jwt-cpp')
