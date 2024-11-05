@@ -13,7 +13,8 @@ class ObjectIdPtr;
 
 class ObjectId {
   public:
-    static ObjectId ZeroID;
+    static ObjectId  ZeroID;
+    static const int KeyLength;
     friend class ObjectIdPtr;
 
     ObjectId() {
@@ -24,6 +25,11 @@ class ObjectId {
 
     ObjectId(const unsigned char *const data) {
         std::copy(data, data + sizeof(m_data), m_data);
+    }
+
+    ObjectId(bool raw, const std::string &data) {
+        auto cstr = data.c_str();
+        std::copy(cstr, cstr + SHA_DIGEST_LENGTH, m_data); 
     }
 
     ObjectId(const std::string &hex) {
@@ -126,6 +132,12 @@ class ObjectIdPtr {
 
     explicit ObjectIdPtr(unsigned char *data) {
         m_data = data;
+    }
+
+    explicit ObjectIdPtr(const std::string &raw) {
+        m_data = new unsigned char [SHA_DIGEST_LENGTH];
+        auto data = raw.c_str();
+        std::copy(data, data + SHA_DIGEST_LENGTH, m_data);
     }
 
     // Move semantic

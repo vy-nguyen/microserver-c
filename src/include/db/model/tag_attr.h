@@ -1,26 +1,54 @@
 #pragma once
 
+#include <forward_list>
 #include <soci/soci.h>
 #include <crypto/objectid.h>
 
 namespace seal {
 
-struct TagBase {
-    ObjectId tag_uuid;
-    int      tag_rank;
-    int      tag_score;
-};
+typedef struct TagAttr {
+    std::string tagUuidKey;
+    int         tagRank;
+    int         tagScore;
+    int         upVoteCount;
+    int         downVoteCount;
+    int         sharedCount;
+    int         readCount;
+    int         showCount;
+    int         commentCount;
+    int         followCount;
+    int         bookMarkCount;
+    int         blockedCount;
+} tag_attr_t;
 
-struct TagAttr {
-    TagBase  tag_header;
-    int      up_vote;
-    int      down_vote;
-    int      shared_cnt;
-    int      read_cnt;
-    int      show_cnt;
-    int      view_cnt;
-    int      comment_cnt;
-    int      follow_cnt;
+class Connector;
+
+class TagAttrOps {
+  public:
+    TagAttrOps(int limit = 1024) : limit(limit) {}
+
+    std::shared_ptr<tag_attr_t>
+    find(const Connector &conn, const std::string &id) const;
+
+    std::forward_list<tag_attr_t>
+    find(const Connector &conn, const std::vector<const char *>set, int page) const;
+
+    std::shared_ptr<tag_attr_t>
+    insert(const Connector &conn, const std::shared_ptr<tag_attr_t> attr) const;
+
+    std::shared_ptr<tag_attr_t>
+    update(const Connector &conn,
+           const std::string &id, const char *const field, int val) const;
+
+    std::string to_string(const tag_attr_t &attr) const;
+
+  private:
+    static const std::string_view find_fmt;
+    static const std::string_view find_set_fmt;
+    static const std::string_view insert_fmt;
+    static const std::string_view update_fmt;
+
+    int limit;
 };
 
 }
@@ -31,39 +59,37 @@ namespace soci {
         typedef values base_type;
 
         static void from_base(const values& v, indicator /* ind */, seal::TagAttr &t) {
-            seal::TagBase &header = t.tag_header;
-            auto buf = v.get<std::string>("tag_uuid");
+            auto buf = v.get<std::string>("tagUuidKey");
+            std::swap(buf, t.tagUuidKey);
 
-            header.tag_uuid.assign(buf.c_str());
-            header.tag_rank  = v.get<int>("tag_rank");
-            header.tag_score = v.get<int>("tag_score");
-
-            t.up_vote     = v.get<int>("up_vote");
-            t.down_vote   = v.get<int>("down_vote");
-            t.shared_cnt  = v.get<int>("shared_cnt");
-            t.read_cnt    = v.get<int>("read_cnt");
-            t.show_cnt    = v.get<int>("show_cnt");
-            t.view_cnt    = v.get<int>("view_cnt");
-            t.comment_cnt = v.get<int>("comment_cnt");
-            t.follow_cnt  = v.get<int>("follow_cnt");
+            t.tagRank       = v.get<int>("tagRank");
+            t.tagScore      = v.get<int>("tagScore");
+            t.upVoteCount   = v.get<int>("upVoteCount");
+            t.downVoteCount = v.get<int>("downVoteCount");
+            t.sharedCount   = v.get<int>("sharedCount");
+            t.readCount     = v.get<int>("readCount");
+            t.showCount     = v.get<int>("showCount");
+            t.commentCount  = v.get<int>("commentCount");
+            t.followCount   = v.get<int>("followCount");
+            t.bookMarkCount = v.get<int>("bookMarkCount");
+            t.blockedCount  = v.get<int>("blockedCount");
 
             // t.name = v.get<std::string>("name");
         }
 
         static void to_base(const seal::TagAttr &t, values& v, indicator& /* ind */) {
-            const seal::TagBase &header = t.tag_header;
-
-            v.set("tag_uuid", header.tag_uuid.raw());
-            v.set("tag_rank", header.tag_rank);
-            v.set("tag_score", header.tag_score);
-            v.set("up_vote", t.up_vote);
-            v.set("down_vote", t.down_vote);
-            v.set("shared_cnt", t.shared_cnt);
-            v.set("read_cnt", t.read_cnt);
-            v.set("show_cnt", t.show_cnt);
-            v.set("view_cnt", t.view_cnt);
-            v.set("comment_cnt", t.comment_cnt);
-            v.set("follow_cnt", t.follow_cnt);
+            v.set("tagUuidKey", t.tagUuidKey);
+            v.set("tagRank", t.tagRank);
+            v.set("tagScore", t.tagScore);
+            v.set("upVoteCount", t.upVoteCount);
+            v.set("downVoteCount", t.downVoteCount);
+            v.set("sharedCount", t.sharedCount);
+            v.set("readCount", t.readCount);
+            v.set("showCount", t.showCount);
+            v.set("commentCount", t.commentCount);
+            v.set("followCount", t.followCount);
+            v.set("bookMarkCount", t.bookMarkCount);
+            v.set("blockedCount", t.blockedCount);
         }
     };
 }

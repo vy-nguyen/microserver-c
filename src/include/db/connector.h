@@ -16,7 +16,7 @@ class ConnectorPool {
     ConnectorPool(const ConnectorPool &) = delete;
     ConnectorPool &operator =(const ConnectorPool &) = delete;
 
-    explicit ConnectorPool(DbType type, int max = 10) :
+    explicit ConnectorPool(db::DbType type, int max = 10) :
         m_dbType(type), m_cidx(0), m_max(max)
     {
         m_queue.reserve(m_max);
@@ -52,12 +52,13 @@ class ConnectorPool {
     }
 
     const Connector get();
+    std::string to_string() const;
 
   private:
-    DbType m_dbType;
-    int    m_dbPort = 3306;
-    int    m_cidx;
-    size_t m_max;
+    db::DbType m_dbType;
+    int        m_dbPort = 3306;
+    int        m_cidx;
+    size_t     m_max;
     std::unique_ptr<const std::string_view> m_dbHost;
     std::unique_ptr<const std::string_view> m_dbName;
     std::unique_ptr<const std::string_view> m_userName;
@@ -65,8 +66,6 @@ class ConnectorPool {
 
     std::mutex             m_mtx;
     std::vector<Connector> m_queue;
-
-    void put(const Connector &connector);
 };
 
 class Connector {
@@ -83,6 +82,8 @@ class Connector {
     bool is_valid() const {
         return m_session != nullptr;
     }
+
+    std::string to_string() const;
 
   private:
     Connector(int port,

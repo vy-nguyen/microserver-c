@@ -2,9 +2,11 @@
 
 namespace seal {
 
-enum DbType {
-    MySql,
-    MongoDb,
-};
+namespace db {
+    enum DbType {
+        MySql,
+        MongoDb,
+    };
+}
 
 }

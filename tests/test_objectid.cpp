@@ -1,10 +1,13 @@
 #include <gtest/gtest.h>
+#include "seal/config.h"
 #include "crypto/objectid.h"
 #include "db/connector.h"
+#include "db/model/tag_attr.h"
 
 using namespace seal;
 
-void objid_ctor(const std::string &hex) {
+void objid_ctor(const std::string &hex)
+{
     auto o1 = ObjectId(hex);
 
     if (hex.rfind(std::string("0x"), 0) == 0 ||
@@ -28,7 +31,8 @@ void objid_ctor(const std::string &hex) {
     EXPECT_EQ(o5, o2);
 }
 
-void objidptr_ctor(const std::string &hex) {
+void objidptr_ctor(const std::string &hex)
+{
     auto o1 = ObjectId(hex);
     auto o2 = ObjectIdPtr(o1);
 
@@ -51,7 +55,8 @@ void objidptr_ctor(const std::string &hex) {
     EXPECT_TRUE(oo1 == oo2);
 }
 
-TEST(ObjectIdTest, ConstructorTest) {
+TEST(ObjectIdTest, ConstructorTest)
+{
     seal::ObjectId obj;
 
     EXPECT_EQ(obj, seal::ObjectId::ZeroID);
@@ -62,7 +67,8 @@ TEST(ObjectIdTest, ConstructorTest) {
     objidptr_ctor(std::string("0d57542aafc1f62d86e2071da30686e4c324e4f0"));
 }
 
-void testHash() {
+void testHash()
+{
     const unsigned char str[] = "This is a string to sha-1";
     auto id = ObjectIdPtr::compute_sha1(str, std::strlen((const char *)str));
     auto idCheck = ObjectId(std::string("8a8ba95b575ad18414fc3e386c53d8e969e30ee6"));
@@ -76,9 +82,73 @@ TEST(ObjectIdTest, HashTest) {
     testHash();
 }
 
-void connectorScope(ConnectorPool &pool) {
+void connectorScope(std::shared_ptr<ConnectorPool> pool, int loop)
+{
+    auto connector = pool->get();
+    auto session = connector.session();
+
+    EXPECT_TRUE(connector.is_valid());
+    EXPECT_TRUE(session != nullptr);
+    EXPECT_TRUE(session.use_count() > 0);
+
+    if (loop > 0) {
+        connectorScope(pool, loop - 1);
+    }
 }
 
-TEST(DBConnector, Scope) {
+void testInsert(std::shared_ptr<ConnectorPool> pool) 
+{
+    auto data = std::make_shared<tag_attr_t>();
+    char buf[SHA_DIGEST_LENGTH];
+    const char *key = "abcdef";
+
+    memset(buf, 0, sizeof(buf));
+    std::copy(key, key + strlen(key), buf);
+    data->tagUuidKey    = std::string(buf, sizeof(buf));
+    data->tagRank       = 123;
+    data->tagScore      = 13;
+    data->upVoteCount   = 10;
+    data->downVoteCount = 2;
+    data->sharedCount   = 1;
+    data->readCount     = 1000;
+    data->showCount     = 2032;
+    data->commentCount  = 0;
+    data->followCount   = 0;
+    data->bookMarkCount = 1;
+
+    auto op = TagAttrOps();
+    auto ret = op.insert(pool->get(), data);
+    EXPECT_TRUE(ret != nullptr);
 }
 
+void testFind(std::shared_ptr<ConnectorPool> pool)
+{
+    auto ops = TagAttrOps();
+    char buf[SHA_DIGEST_LENGTH];
+    const char *key = "abcdef";
+
+    memset(buf, 0, sizeof(buf));
+    std::copy(key, key + strlen(key), buf);
+    auto result = ops.find(pool->get(), std::string(buf, sizeof(buf)));
+
+    EXPECT_TRUE(result != nullptr);
+    std::cout << ops.to_string(*result) << std::endl;
+}
+
+TEST(DBConnector, Scope)
+{
+    auto pool = std::make_shared<ConnectorPool>(db::MySql, 2);
+    pool->dbHost(Config::dbHost)
+        .dbName(Config::dbName)
+        .userName(Config::dbUser)
+        .userPassKey(Config::EnvDBPassKey);
+
+    for (auto i = 0; i < 100; i++) {
+        for (auto j = 0; j < (i * 2); j++) {
+            connectorScope(pool, j);
+        }
+        std::cout << "[Loop " << i << "]\n" << pool->to_string() << std::endl;
+    }
+    testInsert(pool);
+    testFind(pool);
+}

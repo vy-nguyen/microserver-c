@@ -24,7 +24,7 @@ void SealSvc::connect_db()
     if (m_dbpool != nullptr) {
         return;
     }
-    m_dbpool = std::make_shared<ConnectorPool>(MySql);
+    m_dbpool = std::make_shared<ConnectorPool>(db::MySql);
     m_dbpool->dbHost(Config::dbHost)
         .dbName(Config::dbName)
         .userName(Config::dbUser)

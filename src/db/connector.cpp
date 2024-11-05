@@ -5,10 +5,11 @@
 
 namespace seal {
 
-const Connector ConnectorPool::get() {
+const Connector ConnectorPool::get()
+{
     std::lock_guard<std::mutex> lock(m_mtx);
 
-    if (m_dbType != MySql) {
+    if (m_dbType != db::MySql) {
         return Connector();
     }
     if (m_queue.size() < m_max) {
@@ -31,11 +32,27 @@ const Connector ConnectorPool::get() {
     return m_queue[idx];
 }
 
+std::string ConnectorPool::to_string() const
+{
+    std::ostringstream oss;
+    int count = 0;
+
+    oss << "Max " << m_max << ", size " << m_queue.size()
+        << ", index " << m_cidx << std::endl;
+
+    for (auto it : m_queue) {
+        oss << "[" << count << "] " << it.to_string();
+        count++;
+    }
+    return oss.str();
+}
+
 Connector::Connector(int port,
         const std::string_view &host,
         const std::string_view &dbName,
         const std::string_view &user,
-        const std::string_view &pass) {
+        const std::string_view &pass)
+{
     std::ostringstream oss;
     oss << "db=" << dbName
         << " user=" << user
@@ -44,6 +61,18 @@ Connector::Connector(int port,
         << " port=" << port;
     auto session = new soci::session(soci::mysql, oss.str());
     m_session = std::shared_ptr<soci::session>(session);
+}
+
+std::string Connector::to_string() const
+{
+    std::ostringstream oss;
+    if (m_session != nullptr) {
+        oss << "session=" << static_cast<void *>(m_session.get())
+            << " ref=" << m_session.use_count() << "\n";
+    } else {
+        oss << "session=nullptr\n";
+    }
+    return oss.str();
 }
 
 }
