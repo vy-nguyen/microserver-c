@@ -2,11 +2,17 @@
 
 #include <forward_list>
 #include <soci/soci.h>
+#include <nlohmann/json.hpp>
 #include <crypto/objectid.h>
 
 namespace seal {
 
-typedef struct TagAttr {
+typedef struct FieldVal final {
+    int              value;
+    std::string_view field;
+} field_val_t;
+
+typedef struct TagAttr final {
     std::string tagUuidKey;
     int         tagRank;
     int         tagScore;
@@ -19,6 +25,37 @@ typedef struct TagAttr {
     int         followCount;
     int         bookMarkCount;
     int         blockedCount;
+
+    TagAttr() : tagUuidKey(ObjectId::KeyLength, 0) {}
+
+    void zero();
+    std::string to_string() const;
+
+    inline void set_key(const char *const key) {
+        tagUuidKey.replace(0, ObjectId::KeyLength, key);
+    }
+    
+    inline void set_key(const std::string &key) {
+        auto len = std::min((int)key.size(), ObjectId::KeyLength);
+        tagUuidKey.replace(0, len, key.c_str(), len);
+    }
+
+    nlohmann::json to_json() const {
+        return nlohmann::json{
+            {"tagUuidKey", tagUuidKey},
+            {"tagRank", tagRank},
+            {"tagScore", tagScore},
+            {"upVoteCount", upVoteCount},
+            {"downVoteCount", downVoteCount},
+            {"sharedCount", sharedCount},
+            {"readCount", readCount},
+            {"showCount", showCount},
+            {"commentCount", commentCount},
+            {"followCount", followCount},
+            {"bookMarkCount", bookMarkCount},
+            {"blockedCount", blockedCount},
+        };
+    }
 } tag_attr_t;
 
 class Connector;
@@ -28,25 +65,65 @@ class TagAttrOps {
     TagAttrOps(int limit = 1024) : limit(limit) {}
 
     std::shared_ptr<tag_attr_t>
-    find(const Connector &conn, const std::string &id) const;
+    find(const std::shared_ptr<Connector> conn, const std::string &id) const;
 
     std::forward_list<tag_attr_t>
-    find(const Connector &conn, const std::vector<const char *>set, int page) const;
+    find(const std::shared_ptr<Connector> conn,
+         const std::vector<const std::string> &keys, int page) const;
 
     std::shared_ptr<tag_attr_t>
-    insert(const Connector &conn, const std::shared_ptr<tag_attr_t> attr) const;
+    insert(const std::shared_ptr<Connector> conn,
+           const std::shared_ptr<tag_attr_t> attr) const;
 
     std::shared_ptr<tag_attr_t>
-    update(const Connector &conn,
-           const std::string &id, const char *const field, int val) const;
+    update(const std::shared_ptr<Connector> conn,
+           const std::string &id, const field_val_t &field) const;
 
-    std::string to_string(const tag_attr_t &attr) const;
+    std::vector<std::shared_ptr<tag_attr_t>>
+    update(const std::shared_ptr<Connector> conn,
+           const std::string &id, const std::vector<const field_val_t> &fields) const;
+
+    void create_table(const std::shared_ptr<Connector> conn) const;
+    void delete_table(const std::shared_ptr<Connector> conn) const;
 
   private:
-    static const std::string_view find_fmt;
-    static const std::string_view find_set_fmt;
-    static const std::string_view insert_fmt;
-    static const std::string_view update_fmt;
+    static constexpr auto find_fmt =
+        "SELECT * from TagAttr WHERE tagUuidKey = :tagUuidKey";
+
+    static constexpr auto find_set_fmt = 
+        "SELECT * from TagAttr WHERE tagUuidKey IN (:keyIds)";
+
+    static constexpr auto insert_fmt =
+        "INSERT INTO TagAttr (tagUuidKey, tagRank, "
+        "tagScore, upVoteCount, downVoteCount, sharedCount, readCount, showCount, "
+        "commentCount, followCount, bookMarkCount, blockedCount) VALUES ("
+        ":tagUuidKey, :tagRank, :tagScore, :upVoteCount, :downVoteCount, :sharedCount, "
+        ":readCount, :showCount, :commentCount, :followCount, :bookMarkCount, :blockedCount)";
+
+    static constexpr auto update_fmt =
+        "UPDATE TagAttr SET :counter = :counter + :inc_count WHERE tagUuid = :tagUuid";
+
+    static constexpr auto update_mult_fmt =
+        "UPDATE TagAttr SET %s WHERE tagUuid = :tagUuid";
+
+    static constexpr auto deltab_fmt =
+        "DELETE FROM TagAttr";
+
+    static constexpr auto create_fmt =
+        "CREATE TABLE TagAttr ("
+        "  tagUuidKey VARCHAR(20) PRIMARY KEY,"
+        "  tagRank INT,"
+        "  tagScore INT,"
+        "  upVoteCount INT,"
+        "  downVoteCount INT,"
+        "  sharedCount INT,"
+        "  readCount INT,"
+        "  showCount INT,"
+        "  commentCount INT,"
+        "  followCount INT,"
+        "  bookMarkCount INT,"
+        "  blockedCount INT"
+        ")";
 
     int limit;
 };

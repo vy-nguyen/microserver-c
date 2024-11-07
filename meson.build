@@ -58,6 +58,7 @@ project_include_dirs = include_directories(
   'src/specs/api',
   'src/specs/model',
   '/usr/include/mysql',
+  'subprojects/nlohmann/include',
 )
 
 # Build static lib for subdirs

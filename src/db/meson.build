@@ -20,6 +20,7 @@ db_lib = static_library(
   include_directories: _db_include,
   dependencies: [
     soci_lib,
+    nlohmann_dep,
   ],
 )
 

@@ -9,6 +9,8 @@ namespace seal {
 using namespace Pistache;
 using namespace org::openapitools::server;
 
+class ConnectorPool;
+
 class RestApi : public api::DefaultApi {
   public:
     using Request = Rest::Request;
@@ -20,12 +22,16 @@ class RestApi : public api::DefaultApi {
     void auth_echo_post(const model::_auth_echo_post_request &reqt, Response &resp) override;
     void auth_counter_post(const model::StatOperation &stats, Response &resp) override;
 
-    void public_hello_get(Response &resp) override;
+    void public_hello_entry(const Request &reqt, Response resp);
     void public_counter_post(const model::ItemIdArray &array, Response &resp) override;
 
-  private:
+  protected:
+    virtual std::shared_ptr<ConnectorPool> get_db() = 0;
     virtual bool auth_jwt(const Request &reqt) const = 0;
     virtual void auth_handler(const Request &reqt, Response resp) const = 0;
+
+  private:
+    void public_hello_get(Response &resp) override;
 };
 
 }

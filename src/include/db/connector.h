@@ -1,6 +1,5 @@
 #pragma once
 
-#include <mutex>
 #include <memory>
 #include <soci/mysql/soci-mysql.h>
 #include <db/db-driver.h>
@@ -16,11 +15,7 @@ class ConnectorPool {
     ConnectorPool(const ConnectorPool &) = delete;
     ConnectorPool &operator =(const ConnectorPool &) = delete;
 
-    explicit ConnectorPool(db::DbType type, int max = 10) :
-        m_dbType(type), m_cidx(0), m_max(max)
-    {
-        m_queue.reserve(m_max);
-    }
+    explicit ConnectorPool(db::DbType type) : m_dbType(type) {}
 
     ConnectorPool &dbHost(const std::string_view &name) {
         m_dbHost = std::make_unique<std::string_view>(name);
@@ -51,21 +46,16 @@ class ConnectorPool {
         return *this;
     }
 
-    const Connector get();
+    const std::shared_ptr<Connector> get();
     std::string to_string() const;
 
   private:
     db::DbType m_dbType;
     int        m_dbPort = 3306;
-    int        m_cidx;
-    size_t     m_max;
     std::unique_ptr<const std::string_view> m_dbHost;
     std::unique_ptr<const std::string_view> m_dbName;
     std::unique_ptr<const std::string_view> m_userName;
     std::unique_ptr<const std::string_view> m_password;
-
-    std::mutex             m_mtx;
-    std::vector<Connector> m_queue;
 };
 
 class Connector {

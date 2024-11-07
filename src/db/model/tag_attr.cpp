@@ -1,31 +1,34 @@
+#include <memory.h>
 #include <forward_list>
 #include <iostream>
 #include <db/connector.h>
 #include <db/model/tag_attr.h>
+#include <memory>
 #include <sstream>
 
 namespace seal {
 
-const std::string_view TagAttrOps::find_fmt = "SELECT * FROM TagAttr WHERE tagUuidKey = :tagUuidKey"; 
-const std::string_view TagAttrOps::find_set_fmt = "";
-
-const std::string_view TagAttrOps::insert_fmt = "INSERT INTO TagAttr (tagUuidKey, tagRank, "
-    "tagScore, upVoteCount, downVoteCount, sharedCount, readCount, showCount, commentCount,  "
-    "followCount, bookMarkCount, blockedCount) VALUES ("
-    ":tagUuidKey, :tagRank, :tagScore, :upVoteCount, :downVoteCount, :sharedCount, :readCount, "
-    ":showCount, :commentCount, :followCount, :bookMarkCount, :blockedCount)";
-
-const std::string_view TagAttrOps::update_fmt = "";
+thread_local std::shared_ptr<soci::statement> find_stm;
 
 std::shared_ptr<tag_attr_t>
-TagAttrOps::find(const Connector &conn, const std::string &uuid) const
+TagAttrOps::find(const std::shared_ptr<Connector> conn, const std::string &uuid) const
 {
-    std::string key(uuid);
     auto out = std::make_shared<tag_attr_t>();
-    auto sql = conn.session();
-    try {
-        *sql << TagAttrOps::find_fmt, soci::into(*out), soci::use(key);
+    auto sql = conn->session();
 
+    if (find_stm == nullptr) {
+        find_stm = std::make_shared<soci::statement>(sql->prepare << TagAttrOps::find_fmt);
+    }
+    try {
+        find_stm->exchange(soci::use(uuid, "tagUuidKey"));
+        find_stm->exchange(soci::into(*out));
+        find_stm->define_and_bind();
+        find_stm->execute(true);
+        find_stm->bind_clean_up();
+
+        if (!find_stm->got_data()) {
+            return nullptr;
+        }
     } catch (const soci::soci_error &err) {
         std::cerr << "Failed to find " << err.what() << std::endl;
         return nullptr;
@@ -34,16 +37,18 @@ TagAttrOps::find(const Connector &conn, const std::string &uuid) const
 }
 
 std::forward_list<tag_attr_t>
-TagAttrOps::find(const Connector &conn, const std::vector<const char *> set, int page) const
+TagAttrOps::find(const std::shared_ptr<Connector> conn,
+        const std::vector<const std::string> &keys, int page) const
 {
     auto list = std::forward_list<tag_attr_t>();
     return list;
 }
 
 std::shared_ptr<tag_attr_t>
-TagAttrOps::insert(const Connector &conn, std::shared_ptr<tag_attr_t> attr) const
+TagAttrOps::insert(const std::shared_ptr<Connector> conn,
+        std::shared_ptr<tag_attr_t> attr) const
 {
-    auto sql = conn.session();
+    auto sql = conn->session();
     try {
         *sql << TagAttrOps::insert_fmt, soci::use(*attr);
 
@@ -54,22 +59,76 @@ TagAttrOps::insert(const Connector &conn, std::shared_ptr<tag_attr_t> attr) cons
     return attr;
 }
 
-std::string TagAttrOps::to_string(const tag_attr_t &attr) const
+std::shared_ptr<tag_attr_t>
+TagAttrOps::update(const std::shared_ptr<Connector> conn,
+        const std::string &id, const field_val_t &field) const
+{
+    return nullptr;
+}
+
+std::vector<std::shared_ptr<tag_attr_t>>
+TagAttrOps::update(const std::shared_ptr<Connector> conn,
+        const std::string &id, const std::vector<const field_val_t> &fields) const
+{
+    std::vector<std::shared_ptr<tag_attr_t>> out;
+
+    return out;
+}
+
+void
+TagAttrOps::delete_table(const std::shared_ptr<Connector> conn) const
+{
+    auto sql = conn->session();
+    try {
+        *sql << TagAttrOps::deltab_fmt;
+
+    } catch (const soci::soci_error &err) {
+        std::cerr << "Failed to insert " << err.what() << std::endl;
+    }
+}
+
+void
+TagAttrOps::create_table(const std::shared_ptr<Connector> conn) const
+{
+    auto sql = conn->session();
+    try {
+        *sql << TagAttrOps::create_fmt;
+
+    } catch (const soci::soci_error &err) {
+        std::cerr << "Failed to create table " << err.what() << std::endl;
+    }
+}
+
+void TagAttr::zero()
+{
+    tagRank = 0;
+    tagScore = 0;
+    upVoteCount = 0;
+    downVoteCount = 0;
+    sharedCount = 0;
+    readCount = 0;
+    commentCount = 0;
+    followCount = 0;
+    bookMarkCount = 0;
+    blockedCount = 0;
+}
+
+std::string TagAttr::to_string() const
 {
     std::ostringstream oss;
 
-    oss << "[" << attr.tagUuidKey << "]"
-        << "\n\trank.........." << attr.tagRank
-        << "\n\tscore........." << attr.tagScore
-        << "\n\tup_vote......." << attr.upVoteCount
-        << "\n\tdown_vote....." << attr.downVoteCount
-        << "\n\tshared_cnt...." << attr.sharedCount
-        << "\n\tread_cnt......" << attr.readCount
-        << "\n\tshow_cnt......" << attr.showCount
-        << "\n\tcomment_cnt..." << attr.commentCount
-        << "\n\tfollow_cnt...." << attr.followCount
-        << "\n\tbookmark_cnt.." << attr.bookMarkCount
-        << "\n\tblocked_cnt..." << attr.blockedCount << "\n";
+    oss << "[" << tagUuidKey << "]"
+        << "\n\trank.........." << tagRank
+        << "\n\tscore........." << tagScore
+        << "\n\tup_vote......." << upVoteCount
+        << "\n\tdown_vote....." << downVoteCount
+        << "\n\tshared_cnt...." << sharedCount
+        << "\n\tread_cnt......" << readCount
+        << "\n\tshow_cnt......" << showCount
+        << "\n\tcomment_cnt..." << commentCount
+        << "\n\tfollow_cnt...." << followCount
+        << "\n\tbookmark_cnt.." << bookMarkCount
+        << "\n\tblocked_cnt..." << blockedCount << "\n";
     return oss.str();
 }
 

@@ -85,9 +85,9 @@ TEST(ObjectIdTest, HashTest) {
 void connectorScope(std::shared_ptr<ConnectorPool> pool, int loop)
 {
     auto connector = pool->get();
-    auto session = connector.session();
+    auto session = connector->session();
 
-    EXPECT_TRUE(connector.is_valid());
+    EXPECT_TRUE(connector->is_valid());
     EXPECT_TRUE(session != nullptr);
     EXPECT_TRUE(session.use_count() > 0);
 
@@ -99,12 +99,8 @@ void connectorScope(std::shared_ptr<ConnectorPool> pool, int loop)
 void testInsert(std::shared_ptr<ConnectorPool> pool) 
 {
     auto data = std::make_shared<tag_attr_t>();
-    char buf[SHA_DIGEST_LENGTH];
-    const char *key = "abcdef";
 
-    memset(buf, 0, sizeof(buf));
-    std::copy(key, key + strlen(key), buf);
-    data->tagUuidKey    = std::string(buf, sizeof(buf));
+    data->set_key("abcdef");
     data->tagRank       = 123;
     data->tagScore      = 13;
     data->upVoteCount   = 10;
@@ -115,6 +111,7 @@ void testInsert(std::shared_ptr<ConnectorPool> pool)
     data->commentCount  = 0;
     data->followCount   = 0;
     data->bookMarkCount = 1;
+    data->blockedCount  = 0;
 
     auto op = TagAttrOps();
     auto ret = op.insert(pool->get(), data);
@@ -124,20 +121,18 @@ void testInsert(std::shared_ptr<ConnectorPool> pool)
 void testFind(std::shared_ptr<ConnectorPool> pool)
 {
     auto ops = TagAttrOps();
-    char buf[SHA_DIGEST_LENGTH];
-    const char *key = "abcdef";
+    auto tag = TagAttr();
+    tag.set_key("abcdef");
 
-    memset(buf, 0, sizeof(buf));
-    std::copy(key, key + strlen(key), buf);
-    auto result = ops.find(pool->get(), std::string(buf, sizeof(buf)));
+    auto result = ops.find(pool->get(), tag.tagUuidKey);
 
     EXPECT_TRUE(result != nullptr);
-    std::cout << ops.to_string(*result) << std::endl;
+    std::cout << result->to_string() << std::endl;
 }
 
 TEST(DBConnector, Scope)
 {
-    auto pool = std::make_shared<ConnectorPool>(db::MySql, 2);
+    auto pool = std::make_shared<ConnectorPool>(db::MySql);
     pool->dbHost(Config::dbHost)
         .dbName(Config::dbName)
         .userName(Config::dbUser)
@@ -149,6 +144,9 @@ TEST(DBConnector, Scope)
         }
         std::cout << "[Loop " << i << "]\n" << pool->to_string() << std::endl;
     }
+    auto ops = TagAttrOps();
+    ops.delete_table(pool->get());
+
     testInsert(pool);
     testFind(pool);
 }

@@ -10,9 +10,8 @@ void SealSvc::run()
 {
     std::cout << "Starting server on port "
         << m_portNum << " on " << m_numThreads << " threads\n";
-    auto apiHandler = RestApiImpl(m_router);
-
     connect_db();
+    auto apiHandler = RestApiImpl(m_router, m_dbpool);
     apiHandler.init();
     m_endPoint->setHandler(m_router->handler());
     m_endPoint->serve();

@@ -15,7 +15,8 @@ thread_local std::shared_ptr<jwt::verifier
     <jwt::default_clock, jwt::traits::kazuho_picojson>
 > sVerifier;
 
-RestApiImpl::RestApiImpl(const std::shared_ptr<Rest::Router> &router) : RestApi(router)
+RestApiImpl::RestApiImpl(const std::shared_ptr<Rest::Router> router,
+        std::shared_ptr<ConnectorPool> db_pool) : RestApi(router), m_db(db_pool)
 {
     auto key = std::string(Config::EnvSecretName);
     auto value = std::getenv(key.c_str());
@@ -32,6 +33,11 @@ void RestApiImpl::init()
             Rest::Routes::bind(&RestApiImpl::auth_handler, this));
     Rest::Routes::Get(*router, "/auth",
             Rest::Routes::bind(&RestApiImpl::auth_handler, this));
+
+    // Register public paths manually.
+    //
+    Rest::Routes::Get(*router, "/public/hello",
+            Rest::Routes::bind(&RestApiImpl::public_hello_entry, this));
 }
 
 bool RestApiImpl::auth_jwt(const Request &reqt) const

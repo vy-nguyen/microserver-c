@@ -5,44 +5,37 @@
 
 namespace seal {
 
-const Connector ConnectorPool::get()
-{
-    std::lock_guard<std::mutex> lock(m_mtx);
+thread_local std::shared_ptr<Connector> sConnector = nullptr;
 
+const std::shared_ptr<Connector> ConnectorPool::get()
+{
     if (m_dbType != db::MySql) {
-        return Connector();
+        return nullptr;
     }
-    if (m_queue.size() < m_max) {
+    if (sConnector == nullptr) {
         try {
-            m_queue.emplace_back(Connector(m_dbPort,
+            sConnector = std::shared_ptr<Connector>(new Connector(
+                    m_dbPort,
                     *m_dbHost,
                     *m_dbName,
                     *m_userName,
                     *m_password
                 ));
-            return m_queue.back();
-
         } catch (const soci::soci_error &err) {
             std::cerr << "Failed to connect: " << err.what() << std::endl;
+            return nullptr;
         }
-        return Connector();
     }
-    auto idx = m_cidx;
-    m_cidx = (m_cidx + 1) % m_max;
-    return m_queue[idx];
+    return sConnector;
 }
 
 std::string ConnectorPool::to_string() const
 {
     std::ostringstream oss;
-    int count = 0;
-
-    oss << "Max " << m_max << ", size " << m_queue.size()
-        << ", index " << m_cidx << std::endl;
-
-    for (auto it : m_queue) {
-        oss << "[" << count << "] " << it.to_string();
-        count++;
+    if (sConnector == nullptr) {
+        oss << "No thread\n";
+    } else {
+        oss << "[" << sConnector.use_count() << "]\n";
     }
     return oss.str();
 }
