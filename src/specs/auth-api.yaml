@@ -18,3 +18,21 @@ paths:
               schema:
                 $ref: 'models-brief.yaml#/components/schemas/StatList'
 
+  /setcounter:
+    post:
+      summary: Set a counter with initial values.
+      description: This auth API create a new counter set.
+      requestBody:
+        description: Counter data.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'models-brief.yaml#/components/schemas/TagAttr'
+      responses:
+        '200':
+          description: Current values of the counter set.
+          content:
+            application/json:
+              schema:
+                $ref: 'models-brief.yaml#/components/schemas/TagAttr'

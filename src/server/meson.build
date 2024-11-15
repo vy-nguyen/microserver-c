@@ -21,6 +21,7 @@ _stub_sources = [
   _dir_specs / 'model/StatList.cpp',
   _dir_specs / 'model/StatOperation.cpp',
   _dir_specs / 'model/Stats.cpp',
+  _dir_specs / 'model/TagAttr.cpp',
   _dir_srv / 'service.cpp',
   _dir_srv / 'auth.cpp',
   _dir_srv / 'public.cpp',

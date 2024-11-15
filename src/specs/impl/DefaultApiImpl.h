@@ -32,6 +32,7 @@
 #include "ItemIdArray.h"
 #include "StatList.h"
 #include "StatOperation.h"
+#include "TagAttr.h"
 #include "_auth_echo_post_200_response.h"
 #include "_auth_echo_post_request.h"
 #include "_public_hello_get_200_response.h"
@@ -48,6 +49,7 @@ public:
 
     void auth_counter_post(const StatOperation &statOperation, Pistache::Http::ResponseWriter &response);
     void auth_echo_post(const _auth_echo_post_request &authEchoPostRequest, Pistache::Http::ResponseWriter &response);
+    void auth_setcounter_post(const TagAttr &tagAttr, Pistache::Http::ResponseWriter &response);
     void public_counter_post(const ItemIdArray &itemIdArray, Pistache::Http::ResponseWriter &response);
     void public_hello_get(Pistache::Http::ResponseWriter &response);
 

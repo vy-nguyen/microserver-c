@@ -34,6 +34,17 @@ soci_lib = [
 jwt_cpp_proj = cmake.subproject('jwt-cpp', cmake_options: [])
 jwt_cpp_lib = jwt_cpp_proj.dependency('jwt-cpp')
 
+mongo_c = cmake.subproject('mongo-c',
+  cmake_options: [
+    '-DENABLE_AUTOMATIC_INIT_AND_CLEANUP=OFF',
+    '-DCMAKE_BUILD_TYPE=Release',
+  ],
+)
+mongo_c_lib = [
+  mongo_c.dependency('mongoc_shared'),
+  mongo_c.dependency('bson_shared'),
+]
+
 nlohmann_dep = dependency(
   'nlohmann',
   fallback: ['nlohmann', 'nlohmann_json_dep'],
@@ -58,7 +69,11 @@ project_include_dirs = include_directories(
   'src/specs/api',
   'src/specs/model',
   '/usr/include/mysql',
+)
+
+subproj_include_dirs = include_directories(
   'subprojects/nlohmann/include',
+  'subprojects/pistache/include',
 )
 
 # Build static lib for subdirs

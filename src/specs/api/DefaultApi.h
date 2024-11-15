@@ -31,6 +31,7 @@
 #include "ItemIdArray.h"
 #include "StatList.h"
 #include "StatOperation.h"
+#include "TagAttr.h"
 #include "_auth_echo_post_200_response.h"
 #include "_auth_echo_post_request.h"
 #include "_public_hello_get_200_response.h"
@@ -46,11 +47,12 @@ public:
 
     static const std::string base;
 
-private:
+protected:
     void setupRoutes();
 
     void auth_counter_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
     void auth_echo_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
+    void auth_setcounter_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
     void public_counter_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
     void public_hello_get_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
     void default_api_default_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
@@ -99,6 +101,14 @@ private:
     /// </remarks>
     /// <param name="authEchoPostRequest">Message to echo back</param>
     virtual void auth_echo_post(const org::openapitools::server::model::_auth_echo_post_request &authEchoPostRequest, Pistache::Http::ResponseWriter &response) = 0;
+    /// <summary>
+    /// Set a counter with initial values.
+    /// </summary>
+    /// <remarks>
+    /// This auth API create a new counter set.
+    /// </remarks>
+    /// <param name="tagAttr">Counter data.</param>
+    virtual void auth_setcounter_post(const org::openapitools::server::model::TagAttr &tagAttr, Pistache::Http::ResponseWriter &response) = 0;
     /// <summary>
     /// Get counters for an itemId
     /// </summary>

@@ -11,7 +11,9 @@ _db_sources = [
 
 _db_include = [
   '.',
+  '../specs',
   project_include_dirs,
+  subproj_include_dirs,
 ]
 
 db_lib = static_library(

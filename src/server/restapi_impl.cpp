@@ -38,6 +38,8 @@ void RestApiImpl::init()
     //
     Rest::Routes::Get(*router, "/public/hello",
             Rest::Routes::bind(&RestApiImpl::public_hello_entry, this));
+    Rest::Routes::Post(*router, "/public/setcounter",
+            Rest::Routes::bind(&RestApiImpl::auth_setcounter_post_entry, this));
 }
 
 bool RestApiImpl::auth_jwt(const Request &reqt) const

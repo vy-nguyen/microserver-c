@@ -73,8 +73,6 @@ void testHash()
     auto id = ObjectIdPtr::compute_sha1(str, std::strlen((const char *)str));
     auto idCheck = ObjectId(std::string("8a8ba95b575ad18414fc3e386c53d8e969e30ee6"));
 
-    std::cout << id.to_string() << std::endl;
-    std::cout << idCheck.to_string() << std::endl;
     EXPECT_TRUE(id == idCheck);
 }
 
@@ -113,16 +111,16 @@ void testInsert(std::shared_ptr<ConnectorPool> pool)
     data->bookMarkCount = 1;
     data->blockedCount  = 0;
 
-    auto op = TagAttrOps();
-    auto ret = op.insert(pool->get(), data);
-    EXPECT_TRUE(ret != nullptr);
+    auto op = tagattr_ops();
+    auto ret = op.insert(pool->get(), *data);
+    EXPECT_TRUE(ret != false);
 }
 
 void testFind(std::shared_ptr<ConnectorPool> pool)
 {
-    auto ops = TagAttrOps();
-    auto tag = TagAttr();
-    tag.set_key("abcdef");
+    auto ops = tagattr_ops();
+    auto tag = tag_attr_t();
+    tag.set_key(std::string("abcdef"));
 
     auto result = ops.find(pool->get(), tag.tagUuidKey);
 
@@ -142,10 +140,9 @@ TEST(DBConnector, Scope)
         for (auto j = 0; j < (i * 2); j++) {
             connectorScope(pool, j);
         }
-        std::cout << "[Loop " << i << "]\n" << pool->to_string() << std::endl;
     }
-    auto ops = TagAttrOps();
-    ops.delete_table(pool->get());
+    // auto ops = TagAttrOps();
+    // ops.delete_table(pool->get());
 
     testInsert(pool);
     testFind(pool);

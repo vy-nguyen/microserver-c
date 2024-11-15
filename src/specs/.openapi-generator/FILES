@@ -36,6 +36,8 @@ model/StatOperation.cpp
 model/StatOperation.h
 model/Stats.cpp
 model/Stats.h
+model/TagAttr.cpp
+model/TagAttr.h
 model/_auth_echo_post_200_response.cpp
 model/_auth_echo_post_200_response.h
 model/_auth_echo_post_request.cpp

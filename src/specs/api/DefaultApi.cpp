@@ -35,6 +35,7 @@ void DefaultApi::setupRoutes() {
 
     Routes::Post(*router, base + "/auth/counter", Routes::bind(&DefaultApi::auth_counter_post_handler, this));
     Routes::Post(*router, base + "/auth/echo", Routes::bind(&DefaultApi::auth_echo_post_handler, this));
+    Routes::Post(*router, base + "/auth/setcounter", Routes::bind(&DefaultApi::auth_setcounter_post_handler, this));
     Routes::Post(*router, base + "/public/counter", Routes::bind(&DefaultApi::public_counter_post_handler, this));
     Routes::Get(*router, base + "/public/hello", Routes::bind(&DefaultApi::public_hello_get_handler, this));
 
@@ -121,6 +122,37 @@ void DefaultApi::auth_echo_post_handler(const Pistache::Rest::Request &request, 
 
     try {
         this->auth_echo_post(authEchoPostRequest, response);
+    } catch (Pistache::Http::HttpError &e) {
+        response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
+        return;
+    } catch (std::exception &e) {
+        this->handleOperationException(e, response);
+        return;
+    }
+
+    } catch (std::exception &e) {
+        response.send(Pistache::Http::Code::Internal_Server_Error, e.what());
+    }
+
+}
+void DefaultApi::auth_setcounter_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response) {
+    try {
+
+
+    // Getting the body param
+    
+    TagAttr tagAttr;
+    
+    try {
+        nlohmann::json::parse(request.body()).get_to(tagAttr);
+        tagAttr.validate();
+    } catch (std::exception &e) {
+        this->handleParsingException(e, response);
+        return;
+    }
+
+    try {
+        this->auth_setcounter_post(tagAttr, response);
     } catch (Pistache::Http::HttpError &e) {
         response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
         return;

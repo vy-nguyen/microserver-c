@@ -2,17 +2,18 @@
 
 #include <forward_list>
 #include <soci/soci.h>
-#include <nlohmann/json.hpp>
 #include <crypto/objectid.h>
+#include <db/model-generic.h>
+
+namespace org::openapitools::server::model {
+    class TagAttr;
+}
 
 namespace seal {
 
-typedef struct FieldVal final {
-    int              value;
-    std::string_view field;
-} field_val_t;
-
-typedef struct TagAttr final {
+class tag_attr_t : public DbModel<org::openapitools::server::model::TagAttr>
+{
+  public:
     std::string tagUuidKey;
     int         tagRank;
     int         tagScore;
@@ -26,21 +27,25 @@ typedef struct TagAttr final {
     int         bookMarkCount;
     int         blockedCount;
 
-    TagAttr() : tagUuidKey(ObjectId::KeyLength, 0) {}
+    tag_attr_t() : DbModel(), tagUuidKey(ObjectId::KeyLength, 0) {}
+    tag_attr_t(const org::openapitools::server::model::TagAttr& dto);
+    tag_attr_t(const tag_attr_t &cpy);
 
     void zero();
     std::string to_string() const;
 
+    virtual void to_dto(org::openapitools::server::model::TagAttr& out) const override;
+    
     inline void set_key(const char *const key) {
         tagUuidKey.replace(0, ObjectId::KeyLength, key);
     }
     
-    inline void set_key(const std::string &key) {
+    inline void set_key(const std::string& key) {
         auto len = std::min((int)key.size(), ObjectId::KeyLength);
         tagUuidKey.replace(0, len, key.c_str(), len);
     }
 
-    nlohmann::json to_json() const {
+    virtual nlohmann::json to_json_obj() const override {
         return nlohmann::json{
             {"tagUuidKey", tagUuidKey},
             {"tagRank", tagRank},
@@ -56,49 +61,79 @@ typedef struct TagAttr final {
             {"blockedCount", blockedCount},
         };
     }
-} tag_attr_t;
+};
 
 class Connector;
 
-class TagAttrOps {
+class tagattr_ops : public DbModelOps<tag_attr_t, org::openapitools::server::model::TagAttr> {
   public:
-    TagAttrOps(int limit = 1024) : limit(limit) {}
+    tagattr_ops(int limit = 1024) : DbModelOps(limit) {}
 
     std::shared_ptr<tag_attr_t>
-    find(const std::shared_ptr<Connector> conn, const std::string &id) const;
-
-    std::forward_list<tag_attr_t>
+    find(const std::shared_ptr<Connector> conn, const std::string& id) const override;
+/*
+    std::forward_list<std::shared_ptr<tag_attr_t>>
     find(const std::shared_ptr<Connector> conn,
-         const std::vector<const std::string> &keys, int page) const;
-
+         const std::vector<std::string>& keys, int page) const override;
+*/
     std::shared_ptr<tag_attr_t>
-    insert(const std::shared_ptr<Connector> conn,
-           const std::shared_ptr<tag_attr_t> attr) const;
-
-    std::shared_ptr<tag_attr_t>
-    update(const std::shared_ptr<Connector> conn,
-           const std::string &id, const field_val_t &field) const;
+    update_field(const std::shared_ptr<Connector> conn,
+           const std::string& id, const int_field_val_t& field) const;
 
     std::vector<std::shared_ptr<tag_attr_t>>
-    update(const std::shared_ptr<Connector> conn,
-           const std::string &id, const std::vector<const field_val_t> &fields) const;
+    update_field(const std::shared_ptr<Connector> conn,
+           const std::string& id, const std::vector<const int_field_val_t> & fields) const;
 
-    void create_table(const std::shared_ptr<Connector> conn) const;
-    void delete_table(const std::shared_ptr<Connector> conn) const;
+  protected:
+    const std::string_view get_find_stm() const override {
+        return find_fmt;
+    }
 
-  private:
+    const std::string_view get_find_keys_stm() const override {
+        return find_set_fmt;
+    }
+
+    const std::string_view get_insert_stm() const override {
+        return insert_fmt;
+    }
+
+    const std::string_view get_update_stm() const override {
+        return update_fmt;
+    }
+
+    const std::string_view get_create_stm() const override {
+        return create_fmt;
+    }
+
+    const std::string_view get_delete_stm() const override {
+        return deltab_fmt;
+    }
+
     static constexpr auto find_fmt =
         "SELECT * from TagAttr WHERE tagUuidKey = :tagUuidKey";
 
     static constexpr auto find_set_fmt = 
-        "SELECT * from TagAttr WHERE tagUuidKey IN (:keyIds)";
+        "SELECT * from TagAttr WHERE tagUuidKey IN (:keyIds) LIMIT :limit OFFSET :offset";
 
     static constexpr auto insert_fmt =
         "INSERT INTO TagAttr (tagUuidKey, tagRank, "
-        "tagScore, upVoteCount, downVoteCount, sharedCount, readCount, showCount, "
-        "commentCount, followCount, bookMarkCount, blockedCount) VALUES ("
-        ":tagUuidKey, :tagRank, :tagScore, :upVoteCount, :downVoteCount, :sharedCount, "
-        ":readCount, :showCount, :commentCount, :followCount, :bookMarkCount, :blockedCount)";
+        "  tagScore, upVoteCount, downVoteCount, sharedCount, readCount, showCount, "
+        "  commentCount, followCount, bookMarkCount, blockedCount) VALUES ("
+        ":  tagUuidKey, :tagRank, :tagScore, :upVoteCount, :downVoteCount, :sharedCount, "
+        ":  readCount, :showCount, :commentCount, :followCount, :bookMarkCount, :blockedCount)"
+        "ON DUPLICATE KEY UPDATE "
+        "  tagRank = VALUES(tagRank),"
+        "  tagScore = VALUES(tagScore),"
+        "  upVoteCount = VALUES(upVoteCount),"
+        "  downVoteCount = VALUES(downVoteCount),"
+        "  sharedCount = VALUES(sharedCount),"
+        "  readCount = VALUES(readCount),"
+        "  showCount = VALUES(showCount),"
+        "  commentCount = VALUES(commentCount),"
+        "  followCount = VALUES(followCount),"
+        "  bookMarkCount = VALUES(bookMarkCount),"
+        "  blockedCount = VALUES(blockedCount)"
+        ;
 
     static constexpr auto update_fmt =
         "UPDATE TagAttr SET :counter = :counter + :inc_count WHERE tagUuid = :tagUuid";
@@ -124,18 +159,16 @@ class TagAttrOps {
         "  bookMarkCount INT,"
         "  blockedCount INT"
         ")";
-
-    int limit;
 };
 
 }
 
 namespace soci {
     template <>
-    struct type_conversion<seal::TagAttr> {
+    struct type_conversion<seal::tag_attr_t> {
         typedef values base_type;
 
-        static void from_base(const values& v, indicator /* ind */, seal::TagAttr &t) {
+        static void from_base(const values& v, indicator /* ind */, seal::tag_attr_t& t) {
             auto buf = v.get<std::string>("tagUuidKey");
             std::swap(buf, t.tagUuidKey);
 
@@ -154,7 +187,7 @@ namespace soci {
             // t.name = v.get<std::string>("name");
         }
 
-        static void to_base(const seal::TagAttr &t, values& v, indicator& /* ind */) {
+        static void to_base(const seal::tag_attr_t& t, values& v, indicator& /* ind */) {
             v.set("tagUuidKey", t.tagUuidKey);
             v.set("tagRank", t.tagRank);
             v.set("tagScore", t.tagScore);

@@ -30,6 +30,9 @@ void DefaultApiImpl::auth_counter_post(const StatOperation &statOperation, Pista
 void DefaultApiImpl::auth_echo_post(const _auth_echo_post_request &authEchoPostRequest, Pistache::Http::ResponseWriter &response) {
     response.send(Pistache::Http::Code::Ok, "Do some magic\n");
 }
+void DefaultApiImpl::auth_setcounter_post(const TagAttr &tagAttr, Pistache::Http::ResponseWriter &response) {
+    response.send(Pistache::Http::Code::Ok, "Do some magic\n");
+}
 void DefaultApiImpl::public_counter_post(const ItemIdArray &itemIdArray, Pistache::Http::ResponseWriter &response) {
     response.send(Pistache::Http::Code::Ok, "Do some magic\n");
 }

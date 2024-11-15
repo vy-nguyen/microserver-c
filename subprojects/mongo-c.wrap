@@ -1,0 +1,7 @@
+[wrap-git]
+url = https://github.com/mongodb/mongo-c-driver.git
+revision = 1.28.0
+depth = 1
+
+[provide]
+mongo_c_dep = mongo_c

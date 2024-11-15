@@ -64,6 +64,9 @@ paths:
   /auth/counter:
     $ref: 'auth-api.yaml#/paths/~1counter'
 
+  /auth/setcounter:
+    $ref: 'auth-api.yaml#/paths/~1setcounter'
+
 components:
   securitySchemes:
     bearerAuth:

@@ -11,3 +11,4 @@ subprojects/nlohmann
 subprojects/jwt-cpp
 subprojects/gtest.wrap
 subprojects/googletest-1.14.0
+subprojects/mongo-c

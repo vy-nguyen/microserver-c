@@ -1,8 +1,9 @@
 #pragma once
 
-#include "ItemIdArray.h"
 #include <pistache/http.h>
 #include <DefaultApi.h>
+#include "ItemIdArray.h"
+#include "TagAttr.h"
 
 namespace seal {
 
@@ -25,6 +26,9 @@ class RestApi : public api::DefaultApi {
     void public_hello_entry(const Request &reqt, Response resp);
     void public_counter_post(const model::ItemIdArray &array, Response &resp) override;
 
+    void auth_counter_post_entry(const Request &reqt, Response resp);
+    void auth_setcounter_post_entry(const Request &reqt, Response resp);
+
   protected:
     virtual std::shared_ptr<ConnectorPool> get_db() = 0;
     virtual bool auth_jwt(const Request &reqt) const = 0;
@@ -32,6 +36,8 @@ class RestApi : public api::DefaultApi {
 
   private:
     void public_hello_get(Response &resp) override;
+
+    void auth_setcounter_post(const model::TagAttr &attr, Response &resp) override;
 };
 
 }

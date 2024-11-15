@@ -1,5 +1,6 @@
 unit_test_src = [
   'test_objectid.cpp',
+  'test_string.cpp',
 ]
 
 gtest_dep = dependency(
@@ -27,6 +28,7 @@ unit_test_exe = executable(
   link_with: [
     seal_lib,
     db_lib,
+    server_lib,
   ],
   include_directories: project_include_dirs,
 )
