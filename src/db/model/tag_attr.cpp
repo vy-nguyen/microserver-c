@@ -1,5 +1,4 @@
 #include <memory.h>
-#include <forward_list>
 #include <iostream>
 #include <nlohmann/json.hpp>
 #include <memory>
@@ -10,13 +9,78 @@
 
 namespace seal {
 
-thread_local std::shared_ptr<soci::statement> find_stm;
+thread_local std::shared_ptr<soci::statement> _find_stm;
+thread_local std::shared_ptr<soci::statement> _find_set_stm;
+thread_local std::shared_ptr<soci::statement> _insert_stm;
+thread_local std::shared_ptr<soci::statement> _update_stm;
+thread_local std::shared_ptr<soci::statement> _create_stm;
+thread_local std::shared_ptr<soci::statement> _deltab_stm;
+
+std::shared_ptr<soci::statement>
+tagattr_ops::get_find_stm(const std::shared_ptr<Connector> conn) const 
+{
+    if (_find_stm == nullptr) {
+        _find_stm = std::make_shared<soci::statement>(
+                conn->session()->prepare << tagattr_ops::find_fmt);
+    }
+    return _find_stm;
+}
+
+std::shared_ptr<soci::statement>
+tagattr_ops::get_find_keys_stm(std::shared_ptr<Connector> conn) const
+{
+    if (_find_set_stm == nullptr) {
+        _find_set_stm = std::make_shared<soci::statement>(
+                conn->session()->prepare << tagattr_ops::find_set_fmt);
+    }
+    return _find_set_stm;
+}
+
+std::shared_ptr<soci::statement>
+tagattr_ops::get_insert_stm(const std::shared_ptr<Connector> conn) const
+{
+    if (_insert_stm == nullptr) {
+        _insert_stm = std::make_shared<soci::statement>(
+                conn->session()->prepare << tagattr_ops::insert_fmt);
+    }
+    return _insert_stm;
+}
+
+std::shared_ptr<soci::statement>
+tagattr_ops::get_update_stm(const std::shared_ptr<Connector> conn) const
+{
+    if (_update_stm == nullptr) {
+        _update_stm = std::make_shared<soci::statement>(
+                conn->session()->prepare << tagattr_ops::update_fmt);
+    }
+    return _update_stm;
+}
+
+std::shared_ptr<soci::statement>
+tagattr_ops::get_create_stm(const std::shared_ptr<Connector> conn) const
+{
+    if (_create_stm == nullptr) {
+        _create_stm = std::make_shared<soci::statement>(
+                conn->session()->prepare << tagattr_ops::create_fmt);
+    }
+    return _create_stm;
+}
+
+std::shared_ptr<soci::statement>
+tagattr_ops::get_delete_stm(const std::shared_ptr<Connector> conn) const
+{
+    if (_deltab_stm == nullptr) {
+        _deltab_stm = std::make_shared<soci::statement>(
+                conn->session()->prepare << tagattr_ops::deltab_fmt);
+    }
+    return _deltab_stm;
+}
+
 
 /**
  * tagattr_ops::find
  * -----------------
  *
- */
 std::shared_ptr<tag_attr_t>
 tagattr_ops::find(const std::shared_ptr<Connector> conn, const std::string& uuid) const
 {
@@ -42,6 +106,7 @@ tagattr_ops::find(const std::shared_ptr<Connector> conn, const std::string& uuid
     }
     return out;
 }
+ */
 
 /**
  * tagattr_ops::find

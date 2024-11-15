@@ -60,67 +60,42 @@ class DbModelOps
         auto keyids = to_key_set(keys);
         auto temp = T();
 
-        try {
-            soci::statement stm = (conn->session()->prepare << get_find_keys_stm(),
-                    soci::use(keyids, "keyIds"),
-                    soci::use(limit, "limit"),
-                    soci::use(limit * page, "offset"),
-                    soci::into(temp));
+        auto stm = get_find_keys_stm(conn);
+        stm->exchange(soci::use(keyids, "keyIds"));
+        stm->exchange(soci::use(limit, "limit"));
+        stm->exchange(soci::use(limit * page, "offset"));
+        stm->exchange(soci::into(temp));
+        exec_stm(stm);
 
-            stm.execute(true);
-            stm.bind_clean_up();
-            if (stm.got_data()) {
-                while (stm.fetch()) {
-                    auto elm = std::make_shared<T>(temp);
-                    list.push_front(elm);
-                } 
-            }
-        } catch (const soci::soci_error& err) {
-            std::cerr << "Failed to find set " << err.what() << std::endl;
+        if (stm->got_data()) {
+            while (stm->fetch()) {
+                auto elm = std::make_shared<T>(temp);
+                list.push_front(elm);
+            } 
         }
         return list;
     }
 
-    virtual bool insert(const std::shared_ptr<Connector> conn, const T& data) const
-    {
-        try {
-            *conn->session() << get_insert_stm(), soci::use(data);
-            return true;
-
-        } catch (const soci::soci_error& err) {
-            std::cerr << "Failed to insert " << err.what() << std::endl;
-        }
-        return false;
-    }
+    virtual bool insert(const std::shared_ptr<Connector> conn, const T& data) const = 0;
 
     virtual bool update(const std::shared_ptr<Connector> conn, const T& data) const
     {
-        try {
-            *conn->session() << get_update_stm(), soci::use(data);
-            return true;
-
-        } catch (const soci::soci_error& err) {
-            std::cerr << "Failed to update " << err.what() << std::endl;
-        }
-        return false;
+        auto stm = get_update_stm(conn);
+        // TODO: fill in data.
+        exec_stm(stm);
+        return stm->got_data();
     }
 
     virtual void create_table(const std::shared_ptr<Connector> conn) const
     {
-        try {
-            *conn->session() << get_create_stm();
-        } catch (const soci::soci_error& err) {
-            std::cerr << "Failed to create table " << err.what() << std::endl;
-        }
+        auto stm = get_create_stm(conn);
+        exec_stm(stm);
     }
 
     virtual void delete_table(const std::shared_ptr<Connector> conn) const
     {
-        try {
-            *conn->session() << get_delete_stm();
-        } catch (const soci::soci_error& err) {
-            std::cerr << "Failed to delete table " << err.what() << std::endl;
-        }
+        auto stm = get_delete_stm(conn);
+        exec_stm(stm);
     }
 
     inline std::string dto_json(const T& data) const {
@@ -132,12 +107,49 @@ class DbModelOps
   protected:
     int limit;
 
-    virtual const std::string_view get_find_stm() const = 0;
-    virtual const std::string_view get_find_keys_stm() const = 0;
-    virtual const std::string_view get_insert_stm() const = 0;
-    virtual const std::string_view get_update_stm() const = 0;
-    virtual const std::string_view get_create_stm() const = 0;
-    virtual const std::string_view get_delete_stm() const = 0;
+    virtual std::shared_ptr<soci::statement>
+    get_find_stm(const std::shared_ptr<Connector>) const = 0;
+
+    virtual std::shared_ptr<soci::statement>
+    get_find_keys_stm(const std::shared_ptr<Connector>) const = 0;
+
+    virtual std::shared_ptr<soci::statement>
+    get_insert_stm(const std::shared_ptr<Connector>) const = 0;
+
+    virtual std::shared_ptr<soci::statement>
+    get_update_stm(const std::shared_ptr<Connector>) const = 0;
+
+    virtual std::shared_ptr<soci::statement>
+    get_create_stm(const std::shared_ptr<Connector>) const = 0;
+
+    virtual std::shared_ptr<soci::statement>
+    get_delete_stm(const std::shared_ptr<Connector>) const = 0;
+
+    void exec_stm(std::shared_ptr<soci::statement> stm) const
+    {
+        try {
+            stm->define_and_bind();
+            stm->execute(true);
+            stm->bind_clean_up();
+        } catch (const soci::soci_error& err) {
+            std::cerr << "Failed to exec statement: " << err.what() << std::endl;
+        }
+    }
+
+    std::shared_ptr<T> find_intern(const std::shared_ptr<Connector> conn,
+            const std::string& uuid, const char *idKey) const
+    {
+        auto out = std::make_shared<T>();
+        auto stm = get_find_stm(conn);
+        stm->exchange(soci::use(uuid, idKey));
+        stm->exchange(soci::into(*out));
+        exec_stm(stm);
+
+        if (stm->got_data()) {
+            return out;
+        }
+        return nullptr;
+    }
 
     std::string to_key_set(const std::vector<std::string>& array) const
     {
