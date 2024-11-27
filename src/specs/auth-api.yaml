@@ -2,7 +2,7 @@ paths:
   /counter:
     post:
       summary: Change counters for an itemKey
-      description: This auth API changes counters the itemKey can change.
+      description: This auth API changes counters owned by itemKey.
       requestBody:
         description: Stat operation
         required: true
@@ -21,18 +21,18 @@ paths:
   /setcounter:
     post:
       summary: Set a counter with initial values.
-      description: This auth API create a new counter set.
+      description: This auth API creates a new counter set.
       requestBody:
         description: Counter data.
         required: true
         content:
           application/json:
             schema:
-              $ref: 'models-brief.yaml#/components/schemas/TagAttr'
+              $ref: 'models-brief.yaml#/components/schemas/ItemIdArray'
       responses:
         '200':
           description: Current values of the counter set.
           content:
             application/json:
               schema:
-                $ref: 'models-brief.yaml#/components/schemas/TagAttr'
+                $ref: 'models-brief.yaml#/components/schemas/StatList'

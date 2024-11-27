@@ -3,6 +3,7 @@
 #include <pistache/http.h>
 #include <DefaultApi.h>
 #include "ItemIdArray.h"
+#include "StatOperation.h"
 #include "TagAttr.h"
 
 namespace seal {
@@ -17,27 +18,28 @@ class RestApi : public api::DefaultApi {
     using Request = Rest::Request;
     using Response = Http::ResponseWriter;
 
-    explicit RestApi(const std::shared_ptr<Rest::Router> &router) : DefaultApi(router) {}
+    explicit RestApi(const std::shared_ptr<Rest::Router>& router) : DefaultApi(router) {}
     virtual ~RestApi() override = default;
 
-    void auth_echo_post(const model::_auth_echo_post_request &reqt, Response &resp) override;
-    void auth_counter_post(const model::StatOperation &stats, Response &resp) override;
+    // Auth APIs.
+    void auth_counter_post(const model::StatOperation& stats, Response& resp) override;
 
-    void public_hello_entry(const Request &reqt, Response resp);
-    void public_counter_post(const model::ItemIdArray &array, Response &resp) override;
+    void auth_setcounter_post_entry(const Request& reqt, Response resp);
+    void auth_setcounter_post(const model::ItemIdArray &ids, Response &resp) override;
 
-    void auth_counter_post_entry(const Request &reqt, Response resp);
-    void auth_setcounter_post_entry(const Request &reqt, Response resp);
+    // Public APIs.
+    void public_counter_post(const model::ItemIdArray& array, Response& resp) override;
+    void public_counters_get(Response& resp) override;
+
+    // Test APIs.
+    void test_get_get(Response& resp) override;
+    void test_setcounter_post(const model::TagAttr& attr, Response& resp) override;
 
   protected:
     virtual std::shared_ptr<ConnectorPool> get_db() = 0;
-    virtual bool auth_jwt(const Request &reqt) const = 0;
-    virtual void auth_handler(const Request &reqt, Response resp) const = 0;
-
-  private:
-    void public_hello_get(Response &resp) override;
-
-    void auth_setcounter_post(const model::TagAttr &attr, Response &resp) override;
+    virtual bool auth_jwt(const Request& reqt) const = 0;
+    virtual void auth_get_handler(const Request& reqt, Response resp) const = 0;
+    virtual void auth_post_handler(const Request& reqt, Response resp) const = 0;
 };
 
 }

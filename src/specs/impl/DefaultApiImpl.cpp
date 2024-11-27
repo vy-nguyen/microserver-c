@@ -27,16 +27,19 @@ DefaultApiImpl::DefaultApiImpl(const std::shared_ptr<Pistache::Rest::Router>& rt
 void DefaultApiImpl::auth_counter_post(const StatOperation &statOperation, Pistache::Http::ResponseWriter &response) {
     response.send(Pistache::Http::Code::Ok, "Do some magic\n");
 }
-void DefaultApiImpl::auth_echo_post(const _auth_echo_post_request &authEchoPostRequest, Pistache::Http::ResponseWriter &response) {
-    response.send(Pistache::Http::Code::Ok, "Do some magic\n");
-}
-void DefaultApiImpl::auth_setcounter_post(const TagAttr &tagAttr, Pistache::Http::ResponseWriter &response) {
+void DefaultApiImpl::auth_setcounter_post(const ItemIdArray &itemIdArray, Pistache::Http::ResponseWriter &response) {
     response.send(Pistache::Http::Code::Ok, "Do some magic\n");
 }
 void DefaultApiImpl::public_counter_post(const ItemIdArray &itemIdArray, Pistache::Http::ResponseWriter &response) {
     response.send(Pistache::Http::Code::Ok, "Do some magic\n");
 }
-void DefaultApiImpl::public_hello_get(Pistache::Http::ResponseWriter &response) {
+void DefaultApiImpl::public_counters_get(Pistache::Http::ResponseWriter &response) {
+    response.send(Pistache::Http::Code::Ok, "Do some magic\n");
+}
+void DefaultApiImpl::test_get_get(Pistache::Http::ResponseWriter &response) {
+    response.send(Pistache::Http::Code::Ok, "Do some magic\n");
+}
+void DefaultApiImpl::test_setcounter_post(const TagAttr &tagAttr, Pistache::Http::ResponseWriter &response) {
     response.send(Pistache::Http::Code::Ok, "Do some magic\n");
 }
 

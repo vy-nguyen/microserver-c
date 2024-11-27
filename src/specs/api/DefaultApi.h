@@ -32,9 +32,7 @@
 #include "StatList.h"
 #include "StatOperation.h"
 #include "TagAttr.h"
-#include "_auth_echo_post_200_response.h"
-#include "_auth_echo_post_request.h"
-#include "_public_hello_get_200_response.h"
+#include "_test_get_get_200_response.h"
 
 namespace org::openapitools::server::api
 {
@@ -51,10 +49,11 @@ protected:
     void setupRoutes();
 
     void auth_counter_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
-    void auth_echo_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
     void auth_setcounter_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
     void public_counter_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
-    void public_hello_get_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
+    void public_counters_get_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
+    void test_get_get_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
+    void test_setcounter_post_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
     void default_api_default_handler(const Pistache::Rest::Request &request, Pistache::Http::ResponseWriter response);
 
     /// <summary>
@@ -89,18 +88,40 @@ protected:
     /// Change counters for an itemKey
     /// </summary>
     /// <remarks>
-    /// This auth API changes counters the itemKey can change.
+    /// This auth API changes counters owned by itemKey.
     /// </remarks>
     /// <param name="statOperation">Stat operation</param>
     virtual void auth_counter_post(const org::openapitools::server::model::StatOperation &statOperation, Pistache::Http::ResponseWriter &response) = 0;
     /// <summary>
-    /// Echoes back the received message
+    /// Set a counter with initial values.
     /// </summary>
     /// <remarks>
-    /// This endpoint takes a message and echoes it back.
+    /// This auth API creates a new counter set.
     /// </remarks>
-    /// <param name="authEchoPostRequest">Message to echo back</param>
-    virtual void auth_echo_post(const org::openapitools::server::model::_auth_echo_post_request &authEchoPostRequest, Pistache::Http::ResponseWriter &response) = 0;
+    /// <param name="itemIdArray">Counter data.</param>
+    virtual void auth_setcounter_post(const org::openapitools::server::model::ItemIdArray &itemIdArray, Pistache::Http::ResponseWriter &response) = 0;
+    /// <summary>
+    /// Get counters for an itemId
+    /// </summary>
+    /// <remarks>
+    /// This public API sends list of itemIds to get counters for the itemId owner
+    /// </remarks>
+    /// <param name="itemIdArray">Array of itemIds to retrieve counters</param>
+    virtual void public_counter_post(const org::openapitools::server::model::ItemIdArray &itemIdArray, Pistache::Http::ResponseWriter &response) = 0;
+    /// <summary>
+    /// Get default set of counters.
+    /// </summary>
+    /// <remarks>
+    /// This public API gets list of default stat counters.
+    /// </remarks>
+    virtual void public_counters_get(Pistache::Http::ResponseWriter &response) = 0;
+    /// <summary>
+    /// A test get API.
+    /// </summary>
+    /// <remarks>
+    /// Test API to get something.
+    /// </remarks>
+    virtual void test_get_get(Pistache::Http::ResponseWriter &response) = 0;
     /// <summary>
     /// Set a counter with initial values.
     /// </summary>
@@ -108,22 +129,7 @@ protected:
     /// This auth API create a new counter set.
     /// </remarks>
     /// <param name="tagAttr">Counter data.</param>
-    virtual void auth_setcounter_post(const org::openapitools::server::model::TagAttr &tagAttr, Pistache::Http::ResponseWriter &response) = 0;
-    /// <summary>
-    /// Get counters for an itemId
-    /// </summary>
-    /// <remarks>
-    /// This public API send list of itemIds to get counters for the itemId owner
-    /// </remarks>
-    /// <param name="itemIdArray">Array of itemIds to retrieve counters</param>
-    virtual void public_counter_post(const org::openapitools::server::model::ItemIdArray &itemIdArray, Pistache::Http::ResponseWriter &response) = 0;
-    /// <summary>
-    /// Returns a greeting message
-    /// </summary>
-    /// <remarks>
-    /// This endpoint returns a greeting message.
-    /// </remarks>
-    virtual void public_hello_get(Pistache::Http::ResponseWriter &response) = 0;
+    virtual void test_setcounter_post(const org::openapitools::server::model::TagAttr &tagAttr, Pistache::Http::ResponseWriter &response) = 0;
 
 };
 

@@ -8,56 +8,13 @@ servers:
   - url: http://localhost:8080
 
 paths:
-  /public/hello:
-    get:
-      summary: Returns a greeting message
-      description: This endpoint returns a greeting message.
-      responses:
-        '200':
-          description: A greeting message
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-                    example: "Hello, World!"
-
-  /auth/echo:
-    post:
-      summary: Echoes back the received message
-      description: This endpoint takes a message and echoes it back.
-      security:
-        - bearerAuth: []
-      requestBody:
-        description: Message to echo back
-        required: true
-        content:
-          application/json:
-            schema:
-              type: object
-              properties:
-                message:
-                  type: string
-                  example: "Hello"
-      responses:
-        '200':
-          description: Echoed message
-          content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  message:
-                    type: string
-        '401':
-          $ref: '#/components/responses/UnauthorizedError'
-
   ## #######   Public API paths    #########
   #
   /public/counter:
     $ref: 'public-api.yaml#/paths/~1counter'
+
+  /public/counters:
+    $ref: 'public-api.yaml#/paths/~1counters'
 
   ## #######   Auth API paths    ###########
   #
@@ -66,6 +23,14 @@ paths:
 
   /auth/setcounter:
     $ref: 'auth-api.yaml#/paths/~1setcounter'
+
+  ## #######   Test API paths    ###########
+  #
+  /test/get:
+    $ref: 'test-api.yaml#/paths/~1get'
+
+  /test/setcounter:
+    $ref: 'test-api.yaml#/paths/~1setcounter'
 
 components:
   securitySchemes:

@@ -1,0 +1,35 @@
+paths:
+  /get:
+    get:
+      summary: A test get API.
+      description: Test API to get something.
+      responses:
+        '200':
+          description: A get test string.
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: "Get test message"
+
+  /setcounter:
+    post:
+      summary: Set a counter with initial values.
+      description: This auth API create a new counter set.
+      requestBody:
+        description: Counter data.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: 'models-brief.yaml#/components/schemas/TagAttr'
+      responses:
+        '200':
+          description: Current values of the counter set.
+          content:
+            application/json:
+              schema:
+                $ref: 'models-brief.yaml#/components/schemas/TagAttr'

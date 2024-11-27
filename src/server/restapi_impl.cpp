@@ -1,5 +1,6 @@
 #include <iostream>
 #include <memory>
+#include <sstream>
 #include <string_view>
 #include <jwt-cpp/jwt.h>
 #include <seal/config.h>
@@ -29,20 +30,46 @@ RestApiImpl::RestApiImpl(const std::shared_ptr<Rest::Router> router,
 
 void RestApiImpl::init()
 {
-    Rest::Routes::Post(*router, "/auth",
-            Rest::Routes::bind(&RestApiImpl::auth_handler, this));
-    Rest::Routes::Get(*router, "/auth",
-            Rest::Routes::bind(&RestApiImpl::auth_handler, this));
-
-    // Register public paths manually.
+    // Register public and test paths manually.
     //
-    Rest::Routes::Get(*router, "/public/hello",
-            Rest::Routes::bind(&RestApiImpl::public_hello_entry, this));
-    Rest::Routes::Post(*router, "/public/setcounter",
-            Rest::Routes::bind(&RestApiImpl::auth_setcounter_post_entry, this));
+    Rest::Routes::Get(*router, "/test/get",
+            Rest::Routes::bind(&RestApiImpl::test_get_get_handler, this));
+    Rest::Routes::Post(*router, "/test/setcounter",
+            Rest::Routes::bind(&RestApiImpl::test_setcounter_post_handler, this));
+
+    Rest::Routes::Get(*router, "/public/counters",
+            Rest::Routes::bind(&RestApiImpl::public_counters_get_handler, this));
+    Rest::Routes::Post(*router, "/public/counter",
+            Rest::Routes::bind(&RestApiImpl::public_counter_post_handler, this));
+
+    Rest::Routes::Post(*router, "/auth",
+            Rest::Routes::bind(&RestApiImpl::auth_post_handler, this));
+    Rest::Routes::Get(*router, "/auth",
+            Rest::Routes::bind(&RestApiImpl::auth_get_handler, this));
+
+    // Register auth paths in the private map.
+    //
+    m_auth_post.emplace("/auth/counter",
+            Rest::Routes::bind(&RestApiImpl::auth_counter_post_handler, this));
+    m_auth_post.emplace("/auth/setcounter",
+            Rest::Routes::bind(&RestApiImpl::auth_setcounter_post_handler, this));
+
+    register_auth_paths();
 }
 
-bool RestApiImpl::auth_jwt(const Request &reqt) const
+void RestApiImpl::register_auth_paths()
+{
+    for (const auto& it : m_auth_get) {
+        Rest::Routes::Get(*router, it.first,
+                Rest::Routes::bind(&RestApiImpl::auth_post_handler, this));
+    }
+    for (const auto& it : m_auth_post) {
+        Rest::Routes::Get(*router, it.first,
+                Rest::Routes::bind(&RestApiImpl::auth_get_handler, this));
+    }
+}
+
+bool RestApiImpl::auth_jwt(const Request& reqt) const
 {
     auto authHeader = reqt.headers().tryGet<Http::Header::Authorization>();
 
@@ -78,10 +105,25 @@ bool RestApiImpl::auth_jwt(const Request &reqt) const
     return false;
 }
 
-void RestApiImpl::auth_handler(const Request &reqt, Response resp) const
+void RestApiImpl::auth_get_handler(const Request& reqt, Response resp) const
 {
     if (auth_jwt(reqt)) {
-        resp.send(Http::Code::Ok, "Has valid JWT\n");
+        auto path = reqt.resource();
+        auto os = std::ostringstream();
+        os << "Has valid JWT " << reqt.resource() << "\n";
+        resp.send(Http::Code::Ok, os.str());
+    } else {
+        resp.send(Http::Code::Forbidden, "Invalid JWT\n\n");
+    }
+}
+
+void RestApiImpl::auth_post_handler(const Request& reqt, Response resp) const
+{
+    if (auth_jwt(reqt)) {
+        auto path = reqt.resource();
+        auto os = std::ostringstream();
+        os << "Has valid JWT Post " << reqt.resource() << "\n";
+        resp.send(Http::Code::Ok, os.str());
     } else {
         resp.send(Http::Code::Forbidden, "Invalid JWT\n\n");
     }

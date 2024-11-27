@@ -77,9 +77,20 @@ class tagattr_ops : public DbModelOps<tag_attr_t, org::openapitools::server::mod
     insert(const std::shared_ptr<Connector> conn, const tag_attr_t& data) const override
     {
         auto stm = get_insert_stm(conn);
-        stm->exchange(soci::use(data));
+        stm->exchange(soci::use(data.tagUuidKey, "tagUuidKey"));
+        stm->exchange(soci::use(data.tagRank, "tagRank"));
+        stm->exchange(soci::use(data.tagScore, "tagScore"));
+        stm->exchange(soci::use(data.upVoteCount, "upVoteCount"));
+        stm->exchange(soci::use(data.downVoteCount, "downVoteCount"));
+        stm->exchange(soci::use(data.sharedCount, "sharedCount"));
+        stm->exchange(soci::use(data.readCount, "readCount"));
+        stm->exchange(soci::use(data.showCount, "showCount"));
+        stm->exchange(soci::use(data.commentCount, "commentCount"));
+        stm->exchange(soci::use(data.followCount, "followCount"));
+        stm->exchange(soci::use(data.bookMarkCount, "bookMarkCount"));
+        stm->exchange(soci::use(data.blockedCount, "blockedCount"));
         exec_stm(stm);
-        return stm->got_data();
+        return true;
     }
 
     std::shared_ptr<tag_attr_t>
@@ -88,7 +99,7 @@ class tagattr_ops : public DbModelOps<tag_attr_t, org::openapitools::server::mod
 
     std::vector<std::shared_ptr<tag_attr_t>>
     update_field(const std::shared_ptr<Connector> conn,
-           const std::string& id, const std::vector<const int_field_val_t> & fields) const;
+           const std::string& id, const std::vector<const int_field_val_t>& fields) const;
 
   protected:
     std::shared_ptr<soci::statement>
@@ -119,8 +130,8 @@ class tagattr_ops : public DbModelOps<tag_attr_t, org::openapitools::server::mod
         "INSERT INTO TagAttr (tagUuidKey, tagRank, "
         "  tagScore, upVoteCount, downVoteCount, sharedCount, readCount, showCount, "
         "  commentCount, followCount, bookMarkCount, blockedCount) VALUES ("
-        ":  tagUuidKey, :tagRank, :tagScore, :upVoteCount, :downVoteCount, :sharedCount, "
-        ":  readCount, :showCount, :commentCount, :followCount, :bookMarkCount, :blockedCount)"
+        "  :tagUuidKey, :tagRank, :tagScore, :upVoteCount, :downVoteCount, :sharedCount, "
+        "  :readCount, :showCount, :commentCount, :followCount, :bookMarkCount, :blockedCount)"
         "ON DUPLICATE KEY UPDATE "
         "  tagRank = VALUES(tagRank),"
         "  tagScore = VALUES(tagScore),"

@@ -2,7 +2,7 @@ paths:
   /counter:
     post:
       summary: Get counters for an itemId
-      description: This public API send list of itemIds to get counters for the itemId owner
+      description: This public API sends list of itemIds to get counters for the itemId owner
       requestBody:
         description: Array of itemIds to retrieve counters
         required: true
@@ -17,4 +17,14 @@ paths:
             application/json:
               schema:
                 $ref: 'models-brief.yaml#/components/schemas/StatList'
-
+  /counters:
+    get:
+      summary: Get default set of counters.
+      description: This public API gets list of default stat counters.
+      responses:
+        '200':
+          description: Default counter stats.
+          content:
+            application/json:
+              schema:
+                $ref: 'models-brief.yaml#/components/schemas/StatList'
