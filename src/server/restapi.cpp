@@ -87,6 +87,12 @@ void RestApi::auth_setcounter_post(const model::ItemIdArray& ids, Response& resp
 
 void RestApi::auth_counter_post(const model::StatOperation& stats, Response& resp)
 {
+    auto os = std::ostringstream();
+    os << "In auth counter post handler, valid JWT\n";
+
+    const auto& key = stats.getItemKey();
+    os << "\ttagUuid: " << key.getTagUuid() << ", owner: " << key.getOwnerUuid() << "\n";
+    resp.send(Http::Code::Ok, os.str());
 }
 
 }

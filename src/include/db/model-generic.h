@@ -49,10 +49,10 @@ class DbModelOps
     virtual ~DbModelOps() = default;
 
     virtual std::shared_ptr<T>
-    find(const std::shared_ptr<Connector> conn, const std::string& id) const = 0;
+    find(const Connector::sh_ptr conn, const std::string& id) const = 0;
 
     virtual std::forward_list<std::shared_ptr<T>>
-    find(const std::shared_ptr<Connector> conn,
+    find(const Connector::sh_ptr conn,
             const std::vector<std::string>& keys, int page) const
     {
         auto list = std::forward_list<std::shared_ptr<T>>();
@@ -76,9 +76,9 @@ class DbModelOps
         return list;
     }
 
-    virtual bool insert(const std::shared_ptr<Connector> conn, const T& data) const = 0;
+    virtual bool insert(const Connector::sh_ptr conn, const T& data) const = 0;
 
-    virtual bool update(const std::shared_ptr<Connector> conn, const T& data) const
+    virtual bool update(const Connector::sh_ptr conn, const T& data) const
     {
         auto stm = get_update_stm(conn);
         // TODO: fill in data.
@@ -86,13 +86,13 @@ class DbModelOps
         return stm->got_data();
     }
 
-    virtual void create_table(const std::shared_ptr<Connector> conn) const
+    virtual void create_table(const Connector::sh_ptr conn) const
     {
         auto stm = get_create_stm(conn);
         exec_stm(stm);
     }
 
-    virtual void delete_table(const std::shared_ptr<Connector> conn) const
+    virtual void delete_table(const Connector::sh_ptr conn) const
     {
         auto stm = get_delete_stm(conn);
         exec_stm(stm);
@@ -108,22 +108,22 @@ class DbModelOps
     int limit;
 
     virtual std::shared_ptr<soci::statement>
-    get_find_stm(const std::shared_ptr<Connector>) const = 0;
+    get_find_stm(const Connector::sh_ptr) const = 0;
 
     virtual std::shared_ptr<soci::statement>
-    get_find_keys_stm(const std::shared_ptr<Connector>) const = 0;
+    get_find_keys_stm(const Connector::sh_ptr) const = 0;
 
     virtual std::shared_ptr<soci::statement>
-    get_insert_stm(const std::shared_ptr<Connector>) const = 0;
+    get_insert_stm(const Connector::sh_ptr) const = 0;
 
     virtual std::shared_ptr<soci::statement>
-    get_update_stm(const std::shared_ptr<Connector>) const = 0;
+    get_update_stm(const Connector::sh_ptr) const = 0;
 
     virtual std::shared_ptr<soci::statement>
-    get_create_stm(const std::shared_ptr<Connector>) const = 0;
+    get_create_stm(const Connector::sh_ptr) const = 0;
 
     virtual std::shared_ptr<soci::statement>
-    get_delete_stm(const std::shared_ptr<Connector>) const = 0;
+    get_delete_stm(const Connector::sh_ptr) const = 0;
 
     void exec_stm(std::shared_ptr<soci::statement> stm) const
     {
@@ -136,7 +136,7 @@ class DbModelOps
         }
     }
 
-    std::shared_ptr<T> find_intern(const std::shared_ptr<Connector> conn,
+    std::shared_ptr<T> find_intern(const Connector::sh_ptr conn,
             const std::string& uuid, const char *idKey) const
     {
         auto out = std::make_shared<T>();

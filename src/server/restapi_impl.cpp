@@ -1,6 +1,5 @@
 #include <iostream>
 #include <memory>
-#include <sstream>
 #include <string_view>
 #include <jwt-cpp/jwt.h>
 #include <seal/config.h>
@@ -17,7 +16,7 @@ thread_local std::shared_ptr<jwt::verifier
 > sVerifier;
 
 RestApiImpl::RestApiImpl(const std::shared_ptr<Rest::Router> router,
-        std::shared_ptr<ConnectorPool> db_pool) : RestApi(router), m_db(db_pool)
+        ConnectorPool::sh_ptr db_pool) : RestApi(router), m_db(db_pool)
 {
     auto key = std::string(Config::EnvSecretName);
     auto value = std::getenv(key.c_str());
@@ -61,11 +60,11 @@ void RestApiImpl::register_auth_paths()
 {
     for (const auto& it : m_auth_get) {
         Rest::Routes::Get(*router, it.first,
-                Rest::Routes::bind(&RestApiImpl::auth_post_handler, this));
+                Rest::Routes::bind(&RestApiImpl::auth_get_handler, this));
     }
     for (const auto& it : m_auth_post) {
-        Rest::Routes::Get(*router, it.first,
-                Rest::Routes::bind(&RestApiImpl::auth_get_handler, this));
+        Rest::Routes::Post(*router, it.first,
+                Rest::Routes::bind(&RestApiImpl::auth_post_handler, this));
     }
 }
 
@@ -74,7 +73,6 @@ bool RestApiImpl::auth_jwt(const Request& reqt) const
     auto authHeader = reqt.headers().tryGet<Http::Header::Authorization>();
 
     if (!authHeader) {
-        std::cout << "Don't have JWT token header";
         return false;
     }
     std::string token;
@@ -94,36 +92,36 @@ bool RestApiImpl::auth_jwt(const Request& reqt) const
             return true;
 
         } catch (const jwt::error::token_verification_exception &ex) {
-            std::cout << "Exception " << ex.what() << std::endl;
+            std::cerr << "Exception " << ex.what() << std::endl;
         } catch (std::exception &ex) {
-            std::cout << "Generic Exception " << ex.what() << std::endl;
+            std::cerr << "Generic Exception " << ex.what() << std::endl;
         } catch (...) {
-            std::cout << "Generic unknown exception " << std::endl;
+            std::cerr << "Generic unknown exception " << std::endl;
         }
         return false;
     }
     return false;
 }
 
-void RestApiImpl::auth_get_handler(const Request& reqt, Response resp) const
-{
-    if (auth_jwt(reqt)) {
-        auto path = reqt.resource();
-        auto os = std::ostringstream();
-        os << "Has valid JWT " << reqt.resource() << "\n";
-        resp.send(Http::Code::Ok, os.str());
-    } else {
-        resp.send(Http::Code::Forbidden, "Invalid JWT\n\n");
-    }
+void RestApiImpl::auth_get_handler(const Request& reqt, Response resp) const {
+    auth_handler(m_auth_get, reqt, resp);
 }
 
-void RestApiImpl::auth_post_handler(const Request& reqt, Response resp) const
+void RestApiImpl::auth_post_handler(const Request& reqt, Response resp) const {
+    auth_handler(m_auth_post, reqt, resp);
+}
+
+void RestApiImpl::auth_handler(const handler_map_t& map,
+        const Request& reqt, Response& resp) const
 {
     if (auth_jwt(reqt)) {
-        auto path = reqt.resource();
-        auto os = std::ostringstream();
-        os << "Has valid JWT Post " << reqt.resource() << "\n";
-        resp.send(Http::Code::Ok, os.str());
+        const auto path = reqt.resource();
+        const auto& handler = map.find(path);
+        if (handler != map.end()) {
+            handler->second(reqt, std::move(resp));
+        } else {
+            resp.send(Http::Code::Bad_Request, "Invalid route\n\n");
+        }
     } else {
         resp.send(Http::Code::Forbidden, "Invalid JWT\n\n");
     }

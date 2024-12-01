@@ -17,7 +17,7 @@ thread_local std::shared_ptr<soci::statement> _create_stm;
 thread_local std::shared_ptr<soci::statement> _deltab_stm;
 
 std::shared_ptr<soci::statement>
-tagattr_ops::get_find_stm(const std::shared_ptr<Connector> conn) const 
+tagattr_ops::get_find_stm(const Connector::sh_ptr conn) const 
 {
     if (_find_stm == nullptr) {
         _find_stm = std::make_shared<soci::statement>(
@@ -27,7 +27,7 @@ tagattr_ops::get_find_stm(const std::shared_ptr<Connector> conn) const
 }
 
 std::shared_ptr<soci::statement>
-tagattr_ops::get_find_keys_stm(std::shared_ptr<Connector> conn) const
+tagattr_ops::get_find_keys_stm(Connector::sh_ptr conn) const
 {
     if (_find_set_stm == nullptr) {
         _find_set_stm = std::make_shared<soci::statement>(
@@ -37,7 +37,7 @@ tagattr_ops::get_find_keys_stm(std::shared_ptr<Connector> conn) const
 }
 
 std::shared_ptr<soci::statement>
-tagattr_ops::get_insert_stm(const std::shared_ptr<Connector> conn) const
+tagattr_ops::get_insert_stm(const Connector::sh_ptr conn) const
 {
     if (_insert_stm == nullptr) {
         _insert_stm = std::make_shared<soci::statement>(
@@ -47,7 +47,7 @@ tagattr_ops::get_insert_stm(const std::shared_ptr<Connector> conn) const
 }
 
 std::shared_ptr<soci::statement>
-tagattr_ops::get_update_stm(const std::shared_ptr<Connector> conn) const
+tagattr_ops::get_update_stm(const Connector::sh_ptr conn) const
 {
     if (_update_stm == nullptr) {
         _update_stm = std::make_shared<soci::statement>(
@@ -57,7 +57,7 @@ tagattr_ops::get_update_stm(const std::shared_ptr<Connector> conn) const
 }
 
 std::shared_ptr<soci::statement>
-tagattr_ops::get_create_stm(const std::shared_ptr<Connector> conn) const
+tagattr_ops::get_create_stm(const Connector::sh_ptr conn) const
 {
     if (_create_stm == nullptr) {
         _create_stm = std::make_shared<soci::statement>(
@@ -67,7 +67,7 @@ tagattr_ops::get_create_stm(const std::shared_ptr<Connector> conn) const
 }
 
 std::shared_ptr<soci::statement>
-tagattr_ops::get_delete_stm(const std::shared_ptr<Connector> conn) const
+tagattr_ops::get_delete_stm(const Connector::sh_ptr conn) const
 {
     if (_deltab_stm == nullptr) {
         _deltab_stm = std::make_shared<soci::statement>(
@@ -82,7 +82,7 @@ tagattr_ops::get_delete_stm(const std::shared_ptr<Connector> conn) const
  * -----------------
  *
 std::shared_ptr<tag_attr_t>
-tagattr_ops::find(const std::shared_ptr<Connector> conn, const std::string& uuid) const
+tagattr_ops::find(const Connector::sh_ptr conn, const std::string& uuid) const
 {
     auto out = std::make_shared<tag_attr_t>();
     auto sql = conn->session();
@@ -113,7 +113,7 @@ tagattr_ops::find(const std::shared_ptr<Connector> conn, const std::string& uuid
  * -----------------
  *
 std::forward_list<std::shared_ptr<tag_attr_t>>
-tagattr_ops::find(const std::shared_ptr<Connector> conn,
+tagattr_ops::find(const Connector::sh_ptr conn,
         const std::vector<std::string>& keys, int page) const
 {
     auto list = std::forward_list<std::shared_ptr<tag_attr_t>>();
@@ -127,7 +127,7 @@ tagattr_ops::find(const std::shared_ptr<Connector> conn,
  *
  */
 std::shared_ptr<tag_attr_t>
-tagattr_ops::update_field(const std::shared_ptr<Connector> conn,
+tagattr_ops::update_field(const Connector::sh_ptr conn,
         const std::string& id, const int_field_val_t& field) const
 {
     return nullptr;
@@ -139,7 +139,7 @@ tagattr_ops::update_field(const std::shared_ptr<Connector> conn,
  *
  */
 std::vector<std::shared_ptr<tag_attr_t>>
-tagattr_ops::update_field(const std::shared_ptr<Connector> conn,
+tagattr_ops::update_field(const Connector::sh_ptr conn,
         const std::string& id, const std::vector<const int_field_val_t>& fields) const
 {
     std::vector<std::shared_ptr<tag_attr_t>> out;

@@ -3,6 +3,7 @@
 
 #include <cctype>
 #include <string>
+#include <memory>
 #include <cstring>
 #include <algorithm>
 #include <openssl/sha.h>
@@ -16,6 +17,7 @@ class ObjectId {
     static ObjectId  ZeroID;
     static const int KeyLength;
     friend class ObjectIdPtr;
+    typedef std::shared_ptr<ObjectId> ObjectId_ptr;
 
     ObjectId() {
         std::memset(m_data, 0, sizeof(m_data));
@@ -27,12 +29,12 @@ class ObjectId {
         std::copy(data, data + sizeof(m_data), m_data);
     }
 
-    ObjectId(bool raw, const std::string &data) {
+    ObjectId(bool raw, const std::string& data) {
         auto cstr = data.c_str();
         std::copy(cstr, cstr + SHA_DIGEST_LENGTH, m_data); 
     }
 
-    ObjectId(const std::string &hex) {
+    ObjectId(const std::string& hex) {
         const char *str = hex.c_str();
         if (str[0] == '0' && (str[1] == 'x' || str[1] == 'X')) {
             str += 2;
@@ -49,17 +51,17 @@ class ObjectId {
         }
     }
 
-    ObjectId(const ObjectId &other) {
+    ObjectId(const ObjectId& other) {
         std::copy(other.m_data, other.m_data + sizeof(m_data), m_data);
     }
 
     // Move semantics
     //
-    ObjectId(const ObjectId &&other) noexcept {
+    ObjectId(const ObjectId&& other) noexcept {
         std::copy(other.m_data, other.m_data + sizeof(m_data), m_data);
     }
 
-    ObjectId &operator =(const ObjectId &&other) {
+    ObjectId& operator =(const ObjectId&& other) {
         if (this != &other) {
             std::copy(other.m_data, other.m_data + sizeof(m_data), m_data);
         }
@@ -68,23 +70,23 @@ class ObjectId {
 
     // Operators
     //
-    ObjectId &operator =(const ObjectId &other) {
+    ObjectId& operator =(const ObjectId& other) {
         if (this != &other) {
             std::copy(other.m_data, other.m_data + sizeof(m_data), m_data);
         }
         return *this;
     }
 
-    bool operator ==(const ObjectId &other) const {
+    bool operator ==(const ObjectId& other) const {
         if (this != &other) {
             return std::memcmp(m_data, other.m_data, sizeof(m_data)) == 0;
         }
         return true;
     }
 
-    bool operator ==(const ObjectIdPtr &other) const;
+    bool operator ==(const ObjectIdPtr& other) const;
 
-    ObjectId &assign(const char *const buf) {
+    ObjectId& assign(const char *const buf) {
         std::copy(buf, buf + sizeof(m_data), m_data);
         return *this;
     }
@@ -108,9 +110,9 @@ class ObjectId {
         return std::string(hex);
     }
 
-    friend void compute_sha1(const unsigned char *const buf, int len, ObjectId &hash);
+    friend void compute_sha1(const unsigned char* const buf, int len, ObjectId& hash);
 
-    static inline void sha1(const std::string &buf, ObjectId &hash) {
+    static inline void sha1(const std::string& buf, ObjectId& hash) {
         compute_sha1((unsigned char *)buf.c_str(), buf.size(), hash);
     }
 
@@ -120,21 +122,23 @@ class ObjectId {
 
 class ObjectIdPtr {
   public:
+    typedef std::shared_ptr<ObjectIdPtr> ObjectIdPtr_ptr;
+
     ObjectIdPtr() : m_data(nullptr) {}
     ~ObjectIdPtr() {
         delete[] m_data;
     }
 
-    explicit ObjectIdPtr(ObjectId &other) {
+    explicit ObjectIdPtr(ObjectId& other) {
         m_data = new unsigned char [SHA_DIGEST_LENGTH];
         std::copy(other.m_data, other.m_data + SHA_DIGEST_LENGTH, m_data);
     }
 
-    explicit ObjectIdPtr(unsigned char *data) {
+    explicit ObjectIdPtr(unsigned char* data) {
         m_data = data;
     }
 
-    explicit ObjectIdPtr(const std::string &raw) {
+    explicit ObjectIdPtr(const std::string& raw) {
         m_data = new unsigned char [SHA_DIGEST_LENGTH];
         auto data = raw.c_str();
         std::copy(data, data + SHA_DIGEST_LENGTH, m_data);
@@ -142,7 +146,7 @@ class ObjectIdPtr {
 
     // Move semantic
     //
-    ObjectIdPtr(ObjectIdPtr &&other) noexcept {
+    ObjectIdPtr(ObjectIdPtr&& other) noexcept {
         m_data = other.m_data;
         other.m_data = nullptr;
     }
@@ -174,7 +178,7 @@ class ObjectIdPtr {
 
     // Operators
     //
-    bool operator ==(const ObjectIdPtr &other) const {
+    bool operator ==(const ObjectIdPtr& other) const {
         if (this != &other) {
             if (m_data != nullptr && other.m_data != nullptr) {
                 return std::memcmp(m_data, other.m_data, SHA_DIGEST_LENGTH) == 0;
@@ -184,14 +188,14 @@ class ObjectIdPtr {
         return true;
     }
 
-    bool operator ==(const ObjectId &other) const {
+    bool operator ==(const ObjectId& other) const {
         if (m_data != nullptr) {
             return std::memcmp(m_data, other.m_data, SHA_DIGEST_LENGTH) == 0;
         }
         return false;
     }
 
-    ObjectIdPtr &operator =(const ObjectId &other) {
+    ObjectIdPtr& operator =(const ObjectId& other) {
         if (m_data != nullptr) {
             delete[] m_data;
         }
@@ -212,11 +216,11 @@ class ObjectIdPtr {
     }
 
     static ObjectIdPtr compute_sha1(const unsigned char *const buf, int len);
-    static ObjectIdPtr sha1(const std::string &buf);
+    static ObjectIdPtr sha1(const std::string& buf);
 
     // Disallow copy.
-    ObjectIdPtr(const ObjectIdPtr &) = delete;
-    ObjectIdPtr &operator =(const ObjectIdPtr &) = delete;
+    ObjectIdPtr(const ObjectIdPtr&) = delete;
+    ObjectIdPtr& operator =(const ObjectIdPtr&) = delete;
 
   private:
     unsigned char *m_data;

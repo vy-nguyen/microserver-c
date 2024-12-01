@@ -5,9 +5,9 @@
 
 namespace seal {
 
-thread_local std::shared_ptr<Connector> sConnector = nullptr;
+thread_local Connector::sh_ptr sConnector = nullptr;
 
-const std::shared_ptr<Connector> ConnectorPool::get()
+const Connector::sh_ptr ConnectorPool::get()
 {
     if (m_dbType != db::MySql) {
         return nullptr;

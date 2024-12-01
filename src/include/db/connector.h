@@ -11,28 +11,30 @@ class Connector;
 class ConnectorPool {
   public:
     friend class Connector;
+    using ref = ConnectorPool&;
+    using sh_ptr = std::shared_ptr<ConnectorPool>;
 
-    ConnectorPool(const ConnectorPool &) = delete;
-    ConnectorPool &operator =(const ConnectorPool &) = delete;
+    ConnectorPool(const ConnectorPool&) = delete;
+    ConnectorPool::ref operator =(const ConnectorPool&) = delete;
 
     explicit ConnectorPool(db::DbType type) : m_dbType(type) {}
 
-    ConnectorPool &dbHost(const std::string_view &name) {
+    ConnectorPool::ref dbHost(const std::string_view &name) {
         m_dbHost = std::make_unique<std::string_view>(name);
         return *this;
     }
 
-    ConnectorPool &dbName(const std::string_view &db) {
+    ConnectorPool::ref dbName(const std::string_view& db) {
         m_dbName = std::make_unique<std::string_view>(db);
         return *this;
     }
 
-    ConnectorPool &userName(const std::string_view &user) {
+    ConnectorPool::ref userName(const std::string_view& user) {
         m_userName = std::make_unique<std::string_view>(user);
         return *this;
     }
 
-    ConnectorPool &userPassKey(const std::string_view &envKey) {
+    ConnectorPool::ref userPassKey(const std::string_view& envKey) {
         auto value = std::getenv(envKey.data());
         if (value == nullptr) {
             throw "Missing env key " + std::string(envKey);
@@ -41,7 +43,7 @@ class ConnectorPool {
         return *this;
     }
 
-    ConnectorPool &port(int port) {
+    ConnectorPool::ref port(int port) {
         m_dbPort = port;
         return *this;
     }
@@ -61,6 +63,9 @@ class ConnectorPool {
 class Connector {
   public:
     friend class ConnectorPool;
+    using ref = Connector&;
+    using sh_ptr = std::shared_ptr<Connector>;
+
     Connector() = default;
     Connector(const Connector &) = default;
     Connector &operator =(const Connector &) = default;

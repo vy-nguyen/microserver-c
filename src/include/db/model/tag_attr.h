@@ -69,12 +69,12 @@ class tagattr_ops : public DbModelOps<tag_attr_t, org::openapitools::server::mod
     tagattr_ops(int limit = 1024) : DbModelOps(limit) {}
 
     std::shared_ptr<tag_attr_t>
-    find(const std::shared_ptr<Connector> conn, const std::string& id) const override {
+    find(const Connector::sh_ptr conn, const std::string& id) const override {
         return find_intern(conn, id, "tagUuidKey");
     }
 
     bool
-    insert(const std::shared_ptr<Connector> conn, const tag_attr_t& data) const override
+    insert(const Connector::sh_ptr conn, const tag_attr_t& data) const override
     {
         auto stm = get_insert_stm(conn);
         stm->exchange(soci::use(data.tagUuidKey, "tagUuidKey"));
@@ -94,31 +94,31 @@ class tagattr_ops : public DbModelOps<tag_attr_t, org::openapitools::server::mod
     }
 
     std::shared_ptr<tag_attr_t>
-    update_field(const std::shared_ptr<Connector> conn,
+    update_field(const Connector::sh_ptr conn,
            const std::string& id, const int_field_val_t& field) const;
 
     std::vector<std::shared_ptr<tag_attr_t>>
-    update_field(const std::shared_ptr<Connector> conn,
+    update_field(const Connector::sh_ptr conn,
            const std::string& id, const std::vector<const int_field_val_t>& fields) const;
 
   protected:
     std::shared_ptr<soci::statement>
-        get_find_stm(const std::shared_ptr<Connector>) const override;
+        get_find_stm(const Connector::sh_ptr) const override;
 
     std::shared_ptr<soci::statement>
-        get_find_keys_stm(std::shared_ptr<Connector>) const override;
+        get_find_keys_stm(Connector::sh_ptr) const override;
 
     std::shared_ptr<soci::statement>
-        get_insert_stm(const std::shared_ptr<Connector>) const override;
+        get_insert_stm(const Connector::sh_ptr) const override;
 
     std::shared_ptr<soci::statement>
-        get_update_stm(const std::shared_ptr<Connector>) const override;
+        get_update_stm(const Connector::sh_ptr) const override;
 
     std::shared_ptr<soci::statement>
-        get_create_stm(const std::shared_ptr<Connector>) const override;
+        get_create_stm(const Connector::sh_ptr) const override;
 
     std::shared_ptr<soci::statement>
-        get_delete_stm(const std::shared_ptr<Connector>) const override;
+        get_delete_stm(const Connector::sh_ptr) const override;
 
     static constexpr auto find_fmt =
         "SELECT * from TagAttr WHERE tagUuidKey = :tagUuidKey";
