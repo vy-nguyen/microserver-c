@@ -1,0 +1,7 @@
+#!/bin/bash
+
+EndPoint=http://localhost:8000
+JSON_HDR='Content-Type: application/json'
+JSON_DIR=${SCRIPT_DIR}/json
+
+JWT='Authorization: Bearer eyJhbGciOiJIUzUxMiJ9.eyJ1c2VyVXVpZCI6ImJiMjhiNjVhLWIyODgtNGQzNy05ZWQ2LTUxNTBhMmVhYzhmOSIsInN1YiI6IjE4MDAtbGludXgiLCJpc3MiOiJzZWFsIiwiaWF0IjoxNzMzMjczNDc2LCJleHAiOjE3MzM4NzgyNzZ9.Z4hhawm3R61eV3xa7LJrswOZeHz-_WQn7QdZObEwkeoHf1hphOuIHCHOK59dnWPnu4-Ruv82IXXn28qiPcyTOg'

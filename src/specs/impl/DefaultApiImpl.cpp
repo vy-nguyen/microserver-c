@@ -24,10 +24,10 @@ DefaultApiImpl::DefaultApiImpl(const std::shared_ptr<Pistache::Rest::Router>& rt
 {
 }
 
-void DefaultApiImpl::auth_counter_post(const StatOperation &statOperation, Pistache::Http::ResponseWriter &response) {
+void DefaultApiImpl::auth_counter_post(const ItemIdArray &itemIdArray, Pistache::Http::ResponseWriter &response) {
     response.send(Pistache::Http::Code::Ok, "Do some magic\n");
 }
-void DefaultApiImpl::auth_setcounter_post(const ItemIdArray &itemIdArray, Pistache::Http::ResponseWriter &response) {
+void DefaultApiImpl::auth_setcounter_post(const StatOperation &statOperation, Pistache::Http::ResponseWriter &response) {
     response.send(Pistache::Http::Code::Ok, "Do some magic\n");
 }
 void DefaultApiImpl::public_counter_post(const ItemIdArray &itemIdArray, Pistache::Http::ResponseWriter &response) {

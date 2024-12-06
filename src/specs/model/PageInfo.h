@@ -10,18 +10,15 @@
 * Do not edit the class manually.
 */
 /*
- * ListCommon.h
+ * PageInfo.h
  *
  * 
  */
 
-#ifndef ListCommon_H_
-#define ListCommon_H_
+#ifndef PageInfo_H_
+#define PageInfo_H_
 
 
-#include "PageInfo.h"
-#include "ItemId.h"
-#include <vector>
 #include <nlohmann/json.hpp>
 
 namespace org::openapitools::server::model
@@ -30,11 +27,11 @@ namespace org::openapitools::server::model
 /// <summary>
 /// 
 /// </summary>
-class  ListCommon
+class  PageInfo
 {
 public:
-    ListCommon();
-    virtual ~ListCommon() = default;
+    PageInfo();
+    virtual ~PageInfo() = default;
 
 
     /// <summary>
@@ -54,35 +51,51 @@ public:
     /// </summary>
     bool validate(std::stringstream& msg, const std::string& pathPrefix) const;
 
-    bool operator==(const ListCommon& rhs) const;
-    bool operator!=(const ListCommon& rhs) const;
+    bool operator==(const PageInfo& rhs) const;
+    bool operator!=(const PageInfo& rhs) const;
 
     /////////////////////////////////////////////
-    /// ListCommon members
+    /// PageInfo members
 
     /// <summary>
     /// 
     /// </summary>
-    org::openapitools::server::model::PageInfo getPageInfo() const;
-    void setPageInfo(org::openapitools::server::model::PageInfo const& value);
+    int32_t getTotal() const;
+    void setTotal(int32_t const value);
     /// <summary>
     /// 
     /// </summary>
-    std::vector<org::openapitools::server::model::ItemId> getExtras() const;
-    void setExtras(std::vector<org::openapitools::server::model::ItemId> const& value);
-    bool extrasIsSet() const;
-    void unsetExtras();
+    int32_t getCurrent() const;
+    void setCurrent(int32_t const value);
+    /// <summary>
+    /// 
+    /// </summary>
+    int64_t getSeqNo() const;
+    void setSeqNo(int64_t const value);
+    bool seqNoIsSet() const;
+    void unsetSeqNo();
+    /// <summary>
+    /// 
+    /// </summary>
+    int32_t getItemCount() const;
+    void setItemCount(int32_t const value);
+    bool itemCountIsSet() const;
+    void unsetItemCount();
 
-    friend  void to_json(nlohmann::json& j, const ListCommon& o);
-    friend  void from_json(const nlohmann::json& j, ListCommon& o);
+    friend  void to_json(nlohmann::json& j, const PageInfo& o);
+    friend  void from_json(const nlohmann::json& j, PageInfo& o);
 protected:
-    org::openapitools::server::model::PageInfo m_PageInfo;
+    int32_t m_Total;
 
-    std::vector<org::openapitools::server::model::ItemId> m_Extras;
-    bool m_ExtrasIsSet;
+    int32_t m_Current;
+
+    int64_t m_SeqNo;
+    bool m_SeqNoIsSet;
+    int32_t m_ItemCount;
+    bool m_ItemCountIsSet;
     
 };
 
 } // namespace org::openapitools::server::model
 
-#endif /* ListCommon_H_ */
+#endif /* PageInfo_H_ */

@@ -15,7 +15,7 @@ class ObjectIdPtr;
 class ObjectId {
   public:
     static ObjectId  ZeroID;
-    static const int KeyLength;
+    static const std::size_t KeyLength;
     friend class ObjectIdPtr;
     typedef std::shared_ptr<ObjectId> ObjectId_ptr;
 
@@ -31,7 +31,18 @@ class ObjectId {
 
     ObjectId(bool raw, const std::string& data) {
         auto cstr = data.c_str();
-        std::copy(cstr, cstr + SHA_DIGEST_LENGTH, m_data); 
+        auto len = data.length();
+        auto zlen = 0;
+
+        if (len >= SHA_DIGEST_LENGTH) {
+            len = SHA_DIGEST_LENGTH;
+        } else {
+            zlen = SHA_DIGEST_LENGTH - len;
+        }
+        std::copy(cstr, cstr + len, m_data); 
+        if (zlen > 0) {
+            std::memset(m_data + len, 0, zlen);
+        }
     }
 
     ObjectId(const std::string& hex) {
@@ -141,7 +152,18 @@ class ObjectIdPtr {
     explicit ObjectIdPtr(const std::string& raw) {
         m_data = new unsigned char [SHA_DIGEST_LENGTH];
         auto data = raw.c_str();
-        std::copy(data, data + SHA_DIGEST_LENGTH, m_data);
+        auto len = raw.length();
+        auto zlen = 0;
+
+        if (len >= SHA_DIGEST_LENGTH) {
+            len = SHA_DIGEST_LENGTH;
+        } else {
+            zlen = SHA_DIGEST_LENGTH - len;
+        }
+        std::copy(data, data + len, m_data);
+        if (zlen >= 0) {
+            std::memset(m_data + len, 0, zlen);
+        }
     }
 
     // Move semantic

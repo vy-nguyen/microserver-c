@@ -1,5 +1,5 @@
 paths:
-  /counter:
+  /setcounter:
     post:
       summary: Change counters for an itemKey
       description: This auth API changes counters owned by itemKey.
@@ -18,9 +18,9 @@ paths:
               schema:
                 $ref: 'models-brief.yaml#/components/schemas/StatList'
 
-  /setcounter:
+  /counter:
     post:
-      summary: Set a counter with initial values.
+      summary: Create counters having IDs from ItemIdArray.
       description: This auth API creates a new counter set.
       requestBody:
         description: Counter data.

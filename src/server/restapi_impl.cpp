@@ -11,6 +11,10 @@ using namespace Pistache;
 using namespace org::openapitools::server;
 
 static constexpr std::string_view BearerPrefix = "Bearer ";
+
+// Per-thread cached data.
+//
+thread_local std::shared_ptr<RestApiImpl::jwt_claims_t> sCurrentClaims;
 thread_local std::shared_ptr<jwt::verifier
     <jwt::default_clock, jwt::traits::kazuho_picojson>
 > sVerifier;
@@ -81,14 +85,14 @@ bool RestApiImpl::auth_jwt(const Request& reqt) const
     if (authValue.compare(0, BearerPrefix.size(), BearerPrefix) == 0) {
         token = authValue.substr(BearerPrefix.size());
         try {
-            auto decodedToken = jwt::decode(token);
+            sCurrentClaims = std::make_shared<jwt_claims_t>(jwt::decode(token));
 
             if (sVerifier == nullptr) {
                 sVerifier = std::make_shared<jwt::verifier
                     <jwt::default_clock, jwt::traits::kazuho_picojson>
                 >(jwt::verify().allow_algorithm(jwt::algorithm::hs512{m_secret}));
             }
-            sVerifier->verify(decodedToken);
+            sVerifier->verify(*sCurrentClaims);
             return true;
 
         } catch (const jwt::error::token_verification_exception &ex) {
@@ -111,6 +115,10 @@ void RestApiImpl::auth_post_handler(const Request& reqt, Response resp) const {
     auth_handler(m_auth_post, reqt, resp);
 }
 
+std::shared_ptr<RestApi::jwt_claims_t> RestApiImpl::curr_claims() {
+    return sCurrentClaims;
+}
+
 void RestApiImpl::auth_handler(const handler_map_t& map,
         const Request& reqt, Response& resp) const
 {
@@ -125,6 +133,7 @@ void RestApiImpl::auth_handler(const handler_map_t& map,
     } else {
         resp.send(Http::Code::Forbidden, "Invalid JWT\n\n");
     }
+    sCurrentClaims = nullptr;
 }
 
 }

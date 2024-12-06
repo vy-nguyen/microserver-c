@@ -85,21 +85,21 @@ protected:
     virtual std::pair<Pistache::Http::Code, std::string> handleOperationException(const std::exception& ex) const noexcept;
 
     /// <summary>
+    /// Create counters having IDs from ItemIdArray.
+    /// </summary>
+    /// <remarks>
+    /// This auth API creates a new counter set.
+    /// </remarks>
+    /// <param name="itemIdArray">Counter data.</param>
+    virtual void auth_counter_post(const org::openapitools::server::model::ItemIdArray &itemIdArray, Pistache::Http::ResponseWriter &response) = 0;
+    /// <summary>
     /// Change counters for an itemKey
     /// </summary>
     /// <remarks>
     /// This auth API changes counters owned by itemKey.
     /// </remarks>
     /// <param name="statOperation">Stat operation</param>
-    virtual void auth_counter_post(const org::openapitools::server::model::StatOperation &statOperation, Pistache::Http::ResponseWriter &response) = 0;
-    /// <summary>
-    /// Set a counter with initial values.
-    /// </summary>
-    /// <remarks>
-    /// This auth API creates a new counter set.
-    /// </remarks>
-    /// <param name="itemIdArray">Counter data.</param>
-    virtual void auth_setcounter_post(const org::openapitools::server::model::ItemIdArray &itemIdArray, Pistache::Http::ResponseWriter &response) = 0;
+    virtual void auth_setcounter_post(const org::openapitools::server::model::StatOperation &statOperation, Pistache::Http::ResponseWriter &response) = 0;
     /// <summary>
     /// Get counters for an itemId
     /// </summary>

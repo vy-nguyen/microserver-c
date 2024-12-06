@@ -15,6 +15,7 @@ _stub_sources = [
   _dir_specs / 'model/ItemIdList.cpp',
   _dir_specs / 'model/ItemKey.cpp',
   _dir_specs / 'model/KeyVal.cpp',
+  _dir_specs / 'model/PageInfo.cpp',
   _dir_specs / 'model/ListCommon.cpp',
   _dir_specs / 'model/Signature.cpp',
   _dir_specs / 'model/StatElement.cpp',

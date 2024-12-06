@@ -5,12 +5,12 @@
 #include <sstream>
 #include <db/connector.h>
 #include <db/model/tag_attr.h>
+#include <db/model/util.h>
 #include <model/TagAttr.h>
 
 namespace seal {
 
 thread_local std::shared_ptr<soci::statement> _find_stm;
-thread_local std::shared_ptr<soci::statement> _find_set_stm;
 thread_local std::shared_ptr<soci::statement> _insert_stm;
 thread_local std::shared_ptr<soci::statement> _update_stm;
 thread_local std::shared_ptr<soci::statement> _create_stm;
@@ -27,13 +27,24 @@ tagattr_ops::get_find_stm(const Connector::sh_ptr conn) const
 }
 
 std::shared_ptr<soci::statement>
-tagattr_ops::get_find_keys_stm(Connector::sh_ptr conn) const
+tagattr_ops::get_find_stm(Connector::sh_ptr conn,
+        const std::vector<std::string>& keys, int limit, int page) const
 {
-    if (_find_set_stm == nullptr) {
-        _find_set_stm = std::make_shared<soci::statement>(
-                conn->session()->prepare << tagattr_ops::find_set_fmt);
+    auto os = std::ostringstream();
+
+    os << find_set_fmt;
+    for (std::size_t count = 0; count < keys.size(); count++) {
+        if (count > 0) {
+            os << ", ";
+        }
+        os << ":data" << count;
     }
-    return _find_set_stm;
+    os << find_set_part;
+    auto stm = std::make_shared<soci::statement>(conn->session()->prepare << os.str());
+    for (std::size_t count = 0; count < keys.size(); count++) {
+        stm->exchange(soci::use(keys[count], "data" + std::to_string(count)));
+    }
+    return stm;
 }
 
 std::shared_ptr<soci::statement>
@@ -109,19 +120,6 @@ tagattr_ops::find(const Connector::sh_ptr conn, const std::string& uuid) const
  */
 
 /**
- * tagattr_ops::find
- * -----------------
- *
-std::forward_list<std::shared_ptr<tag_attr_t>>
-tagattr_ops::find(const Connector::sh_ptr conn,
-        const std::vector<std::string>& keys, int page) const
-{
-    auto list = std::forward_list<std::shared_ptr<tag_attr_t>>();
-    return list;
-}
- */
-
-/**
  * tagattr_ops::update_field
  * -------------------------
  *
@@ -147,7 +145,7 @@ tagattr_ops::update_field(const Connector::sh_ptr conn,
     return out;
 }
 
-tag_attr_t::tag_attr_t(const tag_attr_t &cpy)
+tag_attr_t::tag_attr_t(const tag_attr_t& cpy)
 {
     tagUuidKey = cpy.tagUuidKey;
     tagRank = cpy.tagRank;
@@ -231,6 +229,20 @@ std::string tag_attr_t::to_string() const
         << "\n\tbookmark_cnt.." << bookMarkCount
         << "\n\tblocked_cnt..." << blockedCount << "\n";
     return oss.str();
+}
+
+/**
+ * to_counters
+ * -----------
+ */
+void tag_attr_t::to_counters(std::vector<model::Counter>& counters) const
+{
+    counters.push_back(dto_counter("downVote", downVoteCount));
+    counters.push_back(dto_counter("readCount", readCount));
+    counters.push_back(dto_counter("showCount", showCount));
+    counters.push_back(dto_counter("commentCount", commentCount));
+    counters.push_back(dto_counter("followCount", followCount));
+    counters.push_back(dto_counter("blockedCount", blockedCount));
 }
 
 }

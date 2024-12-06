@@ -45,8 +45,8 @@ public:
     explicit DefaultApiImpl(const std::shared_ptr<Pistache::Rest::Router>& rtr);
     ~DefaultApiImpl() override = default;
 
-    void auth_counter_post(const StatOperation &statOperation, Pistache::Http::ResponseWriter &response);
-    void auth_setcounter_post(const ItemIdArray &itemIdArray, Pistache::Http::ResponseWriter &response);
+    void auth_counter_post(const ItemIdArray &itemIdArray, Pistache::Http::ResponseWriter &response);
+    void auth_setcounter_post(const StatOperation &statOperation, Pistache::Http::ResponseWriter &response);
     void public_counter_post(const ItemIdArray &itemIdArray, Pistache::Http::ResponseWriter &response);
     void public_counters_get(Pistache::Http::ResponseWriter &response);
     void test_get_get(Pistache::Http::ResponseWriter &response);

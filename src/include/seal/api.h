@@ -1,6 +1,7 @@
 #pragma once
 
 #include <pistache/http.h>
+#include <jwt-cpp/jwt.h>
 #include <DefaultApi.h>
 #include "ItemIdArray.h"
 #include "StatOperation.h"
@@ -17,15 +18,16 @@ class RestApi : public api::DefaultApi {
   public:
     using Request = Rest::Request;
     using Response = Http::ResponseWriter;
+    using jwt_claims_t = jwt::decoded_jwt<jwt::traits::kazuho_picojson>;
 
     explicit RestApi(const std::shared_ptr<Rest::Router>& router) : DefaultApi(router) {}
     virtual ~RestApi() override = default;
 
     // Auth APIs.
-    void auth_counter_post(const model::StatOperation& stats, Response& resp) override;
-
+    void auth_setcounter_post(const model::StatOperation& stats, Response& resp) override;
     void auth_setcounter_post_entry(const Request& reqt, Response resp);
-    void auth_setcounter_post(const model::ItemIdArray &ids, Response &resp) override;
+
+    void auth_counter_post(const model::ItemIdArray &ids, Response &resp) override;
 
     // Public APIs.
     void public_counter_post(const model::ItemIdArray& array, Response& resp) override;
@@ -36,8 +38,8 @@ class RestApi : public api::DefaultApi {
     void test_setcounter_post(const model::TagAttr& attr, Response& resp) override;
 
   protected:
+    virtual std::shared_ptr<jwt_claims_t> curr_claims() = 0;
     virtual std::shared_ptr<ConnectorPool> get_db() = 0;
-    virtual bool auth_jwt(const Request& reqt) const = 0;
     virtual void auth_get_handler(const Request& reqt, Response resp) const = 0;
     virtual void auth_post_handler(const Request& reqt, Response resp) const = 0;
 };

@@ -80,18 +80,18 @@ void DefaultApi::auth_counter_post_handler(const Pistache::Rest::Request &reques
 
     // Getting the body param
     
-    StatOperation statOperation;
+    ItemIdArray itemIdArray;
     
     try {
-        nlohmann::json::parse(request.body()).get_to(statOperation);
-        statOperation.validate();
+        nlohmann::json::parse(request.body()).get_to(itemIdArray);
+        itemIdArray.validate();
     } catch (std::exception &e) {
         this->handleParsingException(e, response);
         return;
     }
 
     try {
-        this->auth_counter_post(statOperation, response);
+        this->auth_counter_post(itemIdArray, response);
     } catch (Pistache::Http::HttpError &e) {
         response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
         return;
@@ -111,18 +111,18 @@ void DefaultApi::auth_setcounter_post_handler(const Pistache::Rest::Request &req
 
     // Getting the body param
     
-    ItemIdArray itemIdArray;
+    StatOperation statOperation;
     
     try {
-        nlohmann::json::parse(request.body()).get_to(itemIdArray);
-        itemIdArray.validate();
+        nlohmann::json::parse(request.body()).get_to(statOperation);
+        statOperation.validate();
     } catch (std::exception &e) {
         this->handleParsingException(e, response);
         return;
     }
 
     try {
-        this->auth_setcounter_post(itemIdArray, response);
+        this->auth_setcounter_post(statOperation, response);
     } catch (Pistache::Http::HttpError &e) {
         response.send(static_cast<Pistache::Http::Code>(e.code()), e.what());
         return;

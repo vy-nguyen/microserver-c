@@ -6,13 +6,18 @@
 
 namespace org::openapitools::server::model {
     class TagAttr;
+    class Counter;
 }
 
 namespace seal {
 
-class tag_attr_t : public DbModel<org::openapitools::server::model::TagAttr>
+using namespace org::openapitools::server;
+
+class tag_attr_t : public DbModel<model::TagAttr>
 {
   public:
+    using tag_attr_ptr = std::shared_ptr<tag_attr_t>;
+
     std::string tagUuidKey;
     int         tagRank;
     int         tagScore;
@@ -27,20 +32,21 @@ class tag_attr_t : public DbModel<org::openapitools::server::model::TagAttr>
     int         blockedCount;
 
     tag_attr_t() : DbModel(), tagUuidKey(ObjectId::KeyLength, 0) {}
-    tag_attr_t(const org::openapitools::server::model::TagAttr& dto);
+    tag_attr_t(const model::TagAttr& dto);
     tag_attr_t(const tag_attr_t &cpy);
 
     void zero();
     std::string to_string() const;
+    void to_counters(std::vector<model::Counter>& counters) const;
 
-    virtual void to_dto(org::openapitools::server::model::TagAttr& out) const override;
+    virtual void to_dto(model::TagAttr& out) const override;
     
     inline void set_key(const char *const key) {
         tagUuidKey.replace(0, ObjectId::KeyLength, key);
     }
     
     inline void set_key(const std::string& key) {
-        auto len = std::min((int)key.size(), ObjectId::KeyLength);
+        auto len = std::min(key.size(), ObjectId::KeyLength);
         tagUuidKey.replace(0, len, key.c_str(), len);
     }
 
@@ -64,8 +70,10 @@ class tag_attr_t : public DbModel<org::openapitools::server::model::TagAttr>
 
 class Connector;
 
-class tagattr_ops : public DbModelOps<tag_attr_t, org::openapitools::server::model::TagAttr> {
+class tagattr_ops : public DbModelOps<tag_attr_t, model::TagAttr> {
   public:
+    using DbModelOps<tag_attr_t, model::TagAttr>::find;
+
     tagattr_ops(int limit = 1024) : DbModelOps(limit) {}
 
     std::shared_ptr<tag_attr_t>
@@ -103,28 +111,30 @@ class tagattr_ops : public DbModelOps<tag_attr_t, org::openapitools::server::mod
 
   protected:
     std::shared_ptr<soci::statement>
-        get_find_stm(const Connector::sh_ptr) const override;
+    get_find_stm(const Connector::sh_ptr) const override;
 
     std::shared_ptr<soci::statement>
-        get_find_keys_stm(Connector::sh_ptr) const override;
+    get_find_stm(Connector::sh_ptr, const std::vector<std::string>&, int, int) const override;
 
     std::shared_ptr<soci::statement>
-        get_insert_stm(const Connector::sh_ptr) const override;
+    get_insert_stm(const Connector::sh_ptr) const override;
 
     std::shared_ptr<soci::statement>
-        get_update_stm(const Connector::sh_ptr) const override;
+    get_update_stm(const Connector::sh_ptr) const override;
 
     std::shared_ptr<soci::statement>
-        get_create_stm(const Connector::sh_ptr) const override;
+    get_create_stm(const Connector::sh_ptr) const override;
 
     std::shared_ptr<soci::statement>
-        get_delete_stm(const Connector::sh_ptr) const override;
+    get_delete_stm(const Connector::sh_ptr) const override;
 
     static constexpr auto find_fmt =
         "SELECT * from TagAttr WHERE tagUuidKey = :tagUuidKey";
 
     static constexpr auto find_set_fmt = 
-        "SELECT * from TagAttr WHERE tagUuidKey IN (:keyIds) LIMIT :limit OFFSET :offset";
+        "SELECT * from TagAttr WHERE tagUuidKey IN (";
+    // static constexpr auto find_set_part = ") LIMIT :limit OFFSET :offset";
+    static constexpr auto find_set_part = ")";
 
     static constexpr auto insert_fmt =
         "INSERT INTO TagAttr (tagUuidKey, tagRank, "

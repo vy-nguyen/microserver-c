@@ -1,0 +1,21 @@
+{
+    "itemKey": {
+        "ownerUuid": "bb28b65a-b288-4d37-9ed6-5150a2eac8f9",
+        "tagUuid": "xyz",
+        "elemUuid": "",
+        "kind": "str",
+        "seqNo": 0
+    },
+    "itemIds": [
+        {
+            "uuid": "abcdef",
+            "kind": "str",
+            "seqNo": 0
+        },
+        {
+            "uuid": "abcxyz",
+            "kind": "str",
+            "seqNo": 0
+        }
+    ]
+}

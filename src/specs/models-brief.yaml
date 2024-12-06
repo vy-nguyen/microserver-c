@@ -130,6 +130,23 @@ components:
 
     PageInfo:
       type: object
+      required:
+        - total
+        - current
+      properties:
+        total:
+          type: integer
+          default: 1
+        current:
+          type: integer
+          default: 0
+        seqNo:
+          type: integer
+          format: int64
+          default: 0
+        itemCount:
+          type: integer
+          default: 0
 
     GpsPos:
       type: object

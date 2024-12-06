@@ -3,7 +3,7 @@
 namespace seal {
 
 ObjectId ObjectId::ZeroID     = ObjectId();
-const int ObjectId::KeyLength = SHA_DIGEST_LENGTH;
+const std::size_t ObjectId::KeyLength = SHA_DIGEST_LENGTH;
 
 bool ObjectId::operator ==(const ObjectIdPtr &other) const {
     return other == *this;

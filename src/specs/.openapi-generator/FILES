@@ -26,6 +26,8 @@ model/KeyVal.cpp
 model/KeyVal.h
 model/ListCommon.cpp
 model/ListCommon.h
+model/PageInfo.cpp
+model/PageInfo.h
 model/Signature.cpp
 model/Signature.h
 model/StatElement.cpp

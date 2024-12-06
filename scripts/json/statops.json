@@ -1,0 +1,32 @@
+{
+    "itemKey": {
+        "tagUuid": "abcdef",
+        "ownerUuid": "owner-abc",
+        "kind": "str",
+        "seqNo": 0
+    },
+    "signature": {
+        "signedHash": "abc123",
+        "sValue": "sValue",
+        "rValue": "rValue",
+        "op": "op"
+    },
+    "values": [
+        {
+            "itemId": {
+                "uuid": "uuid",
+                "kind": "uwar",
+                "seqNo": 0
+            },
+            "peerId": {
+                "uuid": "peer-uuid",
+                "kind": "uwar",
+                "seqNo": 0
+            },
+            "counter": {
+                "name": "counter-a",
+                "value": 100
+            }
+        }
+    ]
+}

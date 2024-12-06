@@ -43,16 +43,6 @@ void RestApi::test_setcounter_post(const model::TagAttr& attr, Response& resp)
     }
 }
 
-// //// Public APIs.
-//
-void RestApi::public_counter_post(const model::ItemIdArray& array, Response& resp)
-{
-}
-
-void RestApi::public_counters_get(Response& resp)
-{
-}
-
 // //// Auth APIs
 //
 void RestApi::auth_setcounter_post_entry(const Request& reqt, Response resp)
@@ -79,20 +69,6 @@ void RestApi::auth_setcounter_post_entry(const Request& reqt, Response resp)
     } catch (std::exception &e) {
         resp.send(Http::Code::Internal_Server_Error, e.what());
     }
-}
-
-void RestApi::auth_setcounter_post(const model::ItemIdArray& ids, Response& resp)
-{
-}
-
-void RestApi::auth_counter_post(const model::StatOperation& stats, Response& resp)
-{
-    auto os = std::ostringstream();
-    os << "In auth counter post handler, valid JWT\n";
-
-    const auto& key = stats.getItemKey();
-    os << "\ttagUuid: " << key.getTagUuid() << ", owner: " << key.getOwnerUuid() << "\n";
-    resp.send(Http::Code::Ok, os.str());
 }
 
 }

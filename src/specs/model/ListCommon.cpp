@@ -44,7 +44,11 @@ bool ListCommon::validate(std::stringstream& msg, const std::string& pathPrefix)
     bool success = true;
     const std::string _pathPrefix = pathPrefix.empty() ? "ListCommon" : pathPrefix;
 
-             
+        
+    if (!m_PageInfo.validate(msg, _pathPrefix + ".pageInfo")) {
+        msg << _pathPrefix << ": PageInfo is invalid;";
+        success = false;
+    }     
     if (extrasIsSet())
     {
         const std::vector<org::openapitools::server::model::ItemId>& value = m_Extras;
@@ -108,11 +112,11 @@ void from_json(const nlohmann::json& j, ListCommon& o)
     
 }
 
-nlohmann::json ListCommon::getPageInfo() const
+org::openapitools::server::model::PageInfo ListCommon::getPageInfo() const
 {
     return m_PageInfo;
 }
-void ListCommon::setPageInfo(nlohmann::json const& value)
+void ListCommon::setPageInfo(org::openapitools::server::model::PageInfo const& value)
 {
     m_PageInfo = value;
 }

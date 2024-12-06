@@ -2,8 +2,9 @@
 
 #include <memory>
 #include <iostream>
-#include <forward_list>
 #include <ostream>
+#include <sstream>
+#include <forward_list>
 #include <soci/soci.h>
 #include <nlohmann/json.hpp>
 #include <db/connector.h>
@@ -22,6 +23,8 @@ template <class DTO>
 class DbModel
 {
   public:
+    using DbModel_ptr = std::shared_ptr<DTO>;
+
     DbModel() = default;
     virtual ~DbModel() = default;
 
@@ -36,6 +39,28 @@ class DbModel
         nlohmann::json json;
         to_json(json, dto);
         return json.dump();
+    }
+
+    static void
+    db_json(std::ostringstream &os,
+            const std::forward_list<DbModel_ptr>& array, const std::string_view tag, bool full)
+    {
+        if (full) {
+            os << "{";
+        }
+        os << '"' << tag << "\": [";
+        auto count = 0;
+        for (const auto& it : array) {
+            if (count++ > 0) {
+                os << ", ";
+            }
+            os << it->db_json();
+        }
+        if (full) {
+            os << "] }";
+        } else {
+            os << "], ";
+        }
     }
 };
 
@@ -56,22 +81,16 @@ class DbModelOps
             const std::vector<std::string>& keys, int page) const
     {
         auto list = std::forward_list<std::shared_ptr<T>>();
-        auto results = std::vector<T>();
-        auto keyids = to_key_set(keys);
+        auto stm = get_find_stm(conn, keys, limit, page);
         auto temp = T();
-
-        auto stm = get_find_keys_stm(conn);
-        stm->exchange(soci::use(keyids, "keyIds"));
-        stm->exchange(soci::use(limit, "limit"));
-        stm->exchange(soci::use(limit * page, "offset"));
         stm->exchange(soci::into(temp));
-        exec_stm(stm);
+        exec_stm(stm, false);
 
         if (stm->got_data()) {
-            while (stm->fetch()) {
+            do {
                 auto elm = std::make_shared<T>(temp);
                 list.push_front(elm);
-            } 
+            } while (stm->fetch());
         }
         return list;
     }
@@ -111,7 +130,7 @@ class DbModelOps
     get_find_stm(const Connector::sh_ptr) const = 0;
 
     virtual std::shared_ptr<soci::statement>
-    get_find_keys_stm(const Connector::sh_ptr) const = 0;
+    get_find_stm(const Connector::sh_ptr, const std::vector<std::string>&, int, int) const = 0;
 
     virtual std::shared_ptr<soci::statement>
     get_insert_stm(const Connector::sh_ptr) const = 0;
@@ -125,14 +144,16 @@ class DbModelOps
     virtual std::shared_ptr<soci::statement>
     get_delete_stm(const Connector::sh_ptr) const = 0;
 
-    void exec_stm(std::shared_ptr<soci::statement> stm) const
+    void exec_stm(std::shared_ptr<soci::statement> stm, bool cleanup = true) const
     {
         try {
             stm->define_and_bind();
             stm->execute(true);
-            stm->bind_clean_up();
+            if (cleanup) {
+                stm->bind_clean_up();
+            }
         } catch (const soci::soci_error& err) {
-            std::cerr << "Failed to exec statement: " << err.what() << std::endl;
+            std::cout << "Failed to exec statement: " << err.what() << std::endl;
         }
     }
 
@@ -150,19 +171,6 @@ class DbModelOps
         }
         return nullptr;
     }
-
-    std::string to_key_set(const std::vector<std::string>& array) const
-    {
-        std::ostringstream oss;
-
-        for (size_t i = 0; i < array.size(); ++i) {
-            oss << array[i];
-            if (i != (array.size() - 1)) {
-                oss << ", ";
-            }
-        }
-        return oss.str();
-    }
-};
+ };
 
 }
