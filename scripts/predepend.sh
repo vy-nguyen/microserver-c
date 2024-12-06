@@ -11,4 +11,5 @@ dpkg -L libmysqlclient-dev
 dpkg -L libmysqlcppconn-dev
 
 sudo npm install -g @openapitools/openapi-generator-cli
-
+pip install PyJWT
+pip install mysql-connector-python
