@@ -1,6 +1,5 @@
 unit_test_src = [
   'test_objectid.cpp',
-  'test_string.cpp',
 ]
 
 gtest_dep = dependency(

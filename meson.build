@@ -17,11 +17,13 @@ cmake = import('cmake')
 soci_proj = cmake.subproject('soci',
   cmake_options: [
     '-DCMAKE_CXX_STANDARD=11',
+    '-DCMAKE_CXX_FLAGS:STRING=-std=c++11',
     '-DCMAKE_CXX_STANDARD_REQUIRED=ON',
     '-DCMAKE_CXX_EXTENSIONS=OFF',
     '-DSOCI_MYSQL=ON',
     '-DSOCI_TESTS=OFF',
     '-DSOCI_SHARED=ON',
+    '-DSOCI_CXX11=ON',
     '-DSOCI_EMPTY=ON',
   ],
 )
@@ -30,9 +32,6 @@ soci_lib = [
   soci_proj.dependency('soci_core_static'),
   soci_proj.dependency('soci_mysql_static'),
 ]
-
-jwt_cpp_proj = cmake.subproject('jwt-cpp', cmake_options: [])
-jwt_cpp_lib = jwt_cpp_proj.dependency('jwt-cpp')
 
 mongo_c = cmake.subproject('mongo-c',
   cmake_options: [
@@ -55,6 +54,12 @@ pistache_dep = dependency(
   'pistache',
   fallback: ['pistache', 'pistache_dep'],
 )
+
+jwt_cpp_proj = cmake.subproject('jwt-cpp', cmake_options: [
+    '-DUSE_BOOST_JSON=OFF',
+  ],
+)
+jwt_cpp_lib = jwt_cpp_proj.dependency('jwt-cpp')
 
 project_dependencies = [
   nlohmann_dep,
