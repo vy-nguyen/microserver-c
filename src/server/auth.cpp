@@ -31,6 +31,9 @@ void RestApi::auth_counter_post(const model::ItemIdArray& ids, Response& resp)
     for (const auto& it : result) {
         query_map.erase(it->tagUuidKey);
     }
+    for (const auto& it : query_map) {
+        auto key = it.first;
+    }
     resp.headers().add<Http::Header::ContentType>(MIME(Application, Json));
     auto out = dto_statslist(result);
     resp.send(Http::Code::Ok, out.to_dto());

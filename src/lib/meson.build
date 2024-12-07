@@ -1,8 +1,10 @@
 _lib_dir = meson.project_source_root() / 'src/lib'
+_util_src = _lib_dir / 'util'
 _crypto_src = _lib_dir / 'crypto'
 
 _lib_seal_sources = [
   _crypto_src / 'objectid.cpp',
+  _util_src / 'prog_opts.cpp',
 ]
 
 _lib_seal_inc = [

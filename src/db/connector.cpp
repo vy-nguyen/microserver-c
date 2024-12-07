@@ -16,10 +16,10 @@ const Connector::sh_ptr ConnectorPool::get()
         try {
             sConnector = std::shared_ptr<Connector>(new Connector(
                     m_dbPort,
-                    *m_dbHost,
-                    *m_dbName,
-                    *m_userName,
-                    *m_password
+                    m_dbHost,
+                    m_dbName,
+                    m_userName,
+                    m_password
                 ));
         } catch (const soci::soci_error &err) {
             std::cerr << "Failed to connect: " << err.what() << std::endl;
@@ -41,10 +41,10 @@ std::string ConnectorPool::to_string() const
 }
 
 Connector::Connector(int port,
-        const std::string_view &host,
-        const std::string_view &dbName,
-        const std::string_view &user,
-        const std::string_view &pass)
+        const std::string_view& host,
+        const std::string_view& dbName,
+        const std::string_view& user,
+        const std::string_view& pass)
 {
     std::ostringstream oss;
     oss << "db=" << dbName

@@ -20,26 +20,22 @@ class ConnectorPool {
     explicit ConnectorPool(db::DbType type) : m_dbType(type) {}
 
     ConnectorPool::ref dbHost(const std::string_view &name) {
-        m_dbHost = std::make_unique<std::string_view>(name);
+        m_dbHost = name;
         return *this;
     }
 
     ConnectorPool::ref dbName(const std::string_view& db) {
-        m_dbName = std::make_unique<std::string_view>(db);
+        m_dbName = db;
         return *this;
     }
 
     ConnectorPool::ref userName(const std::string_view& user) {
-        m_userName = std::make_unique<std::string_view>(user);
+        m_userName = user;
         return *this;
     }
 
-    ConnectorPool::ref userPassKey(const std::string_view& envKey) {
-        auto value = std::getenv(envKey.data());
-        if (value == nullptr) {
-            throw "Missing env key " + std::string(envKey);
-        }
-        m_password = std::make_unique<std::string_view>(std::string_view(value));
+    ConnectorPool::ref userPassKey(const std::string_view& pass) {
+        m_password = pass;
         return *this;
     }
 
@@ -52,12 +48,12 @@ class ConnectorPool {
     std::string to_string() const;
 
   private:
-    db::DbType m_dbType;
-    int        m_dbPort = 3306;
-    std::unique_ptr<const std::string_view> m_dbHost;
-    std::unique_ptr<const std::string_view> m_dbName;
-    std::unique_ptr<const std::string_view> m_userName;
-    std::unique_ptr<const std::string_view> m_password;
+    db::DbType       m_dbType;
+    int              m_dbPort = 3306;
+    std::string_view m_dbHost;
+    std::string_view m_dbName;
+    std::string_view m_userName;
+    std::string_view m_password;
 };
 
 class Connector {
