@@ -36,10 +36,33 @@ class Config {
         return m_password;
     }
 
+    uint16_t get_port() const {
+        return m_port;
+    }
+
+    unsigned int get_nr_thread() const {
+        return m_svc_thr;
+    }
+
+    size_t get_max_reqt_sz() const {
+        return m_maxreqt_sz;
+    }
+
+    size_t get_max_resp_sz() const {
+        return m_maxresp_sz;
+    }
+
+    void cmdline_config(const popt_arg_t& opt);
+    void setup(const ProgOpts& opts);
+
     ~Config() {}
-    static const Config& instance(const ProgOpts& opts);
+    static Config& instance();
 
   protected:
+    uint16_t         m_port;
+    unsigned int     m_svc_thr;
+    size_t           m_maxreqt_sz;
+    size_t           m_maxresp_sz;
     std::string_view m_host;
     std::string_view m_db_user;
     std::string_view m_db_name;
@@ -47,7 +70,6 @@ class Config {
 
   private:
     Config();
-    void setup(const ProgOpts& opts);
 };
 
 }

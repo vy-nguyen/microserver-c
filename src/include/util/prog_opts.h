@@ -14,12 +14,13 @@ struct popt_arg_t
 {
   public:
     friend class ProgOpts;
-    popt_arg_t(const char *key, const char *sopt,
-            const char *lopt, const char *desc,
+    popt_arg_t(const char *key, const char *sopt, const char *lopt,
+            const char *arg_desc, const char *desc,
             bool required = true, bool flag = false) :
         m_key(key),
         m_sopt(sopt),
         m_lopt(lopt),
+        m_arg_desc(arg_desc),
         m_desc(desc),
         m_required(required),
         m_flag(flag),
@@ -41,8 +42,8 @@ struct popt_arg_t
     {
         os << (m_required ? "<" : "[");
         os << m_sopt << " | " << m_lopt;
-        if (m_required) {
-            os << " arg";
+        if (!m_flag && m_arg_desc != "") {
+            os << " " << m_arg_desc;
         }
         os << (m_required ? ">" : "]") << " - " << m_desc << "\n";
     }
@@ -64,19 +65,19 @@ struct popt_arg_t
     std::string_view m_key;
     std::string_view m_sopt;
     std::string_view m_lopt;
+    std::string_view m_arg_desc;
     std::string_view m_desc;
     std::string      m_value;
     bool             m_required;   // true, must have this argument.
     bool             m_flag;       // true, flag arg not expecting value.
     bool             m_flag_on;
-    std::function<void()> m_action;
+    std::function<void(const popt_arg_t&)> m_action;
 };
 
 class ProgOpts
 {
   public:
-    ProgOpts(int argc, char *argv[]) :
-        m_empty("", "", "", "Invalid opt")
+    ProgOpts(int argc, char *argv[]) : m_empty("", "", "", "na", "na")
     {
         for (int i = 0; i < argc; i++) {
             m_argv.emplace_back(argv[i]);
@@ -84,12 +85,14 @@ class ProgOpts
     }
 
     void add_option(const char *key, const char *sopt, const char *lopt,
-            const char *desc, bool required = false, bool flag = false) {
+            const char *arg_desc, const char *desc,
+            bool required = false, bool flag = false) {
         m_opts.emplace(key,
-                popt_arg_t{ key, sopt, lopt, desc, required, flag });
+                popt_arg_t{key, sopt, lopt, arg_desc, desc, required, flag});
     }
 
-    void add_action(std::string_view key, std::function<void()> action);
+    void add_action(std::string_view key,
+            std::function<void(const popt_arg_t&)> action);
     void bind_help(std::string_view key);
 
     popt_arg_t& get_option(std::string_view key);
@@ -107,7 +110,7 @@ class ProgOpts
     std::vector<std::string_view>                    m_argv;
     std::unordered_map<std::string_view, popt_arg_t> m_opts;
 
-    void print_help() const;
+    void print_help(const popt_arg_t&) const;
     void process_opt(std::vector<std::string_view>::iterator&,
             std::string_view key, const std::string_view *value);
 };

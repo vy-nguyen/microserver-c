@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <memory>
 #include <seal/service.h>
 #include <seal/config.h>
@@ -8,23 +9,32 @@ namespace seal {
 
 static Config *sinst_cfg;
 
-void SealSvc::parse_opts()
-{
-    m_opts.parse();
-}
-
 void SealSvc::init()
 {
-    m_opts.add_option("h", "-h", "--help", "Help options", false, true);
-    m_opts.add_option("c", "-c", "--config", "Configuration file in json format");
+    auto& config = Config::instance(); 
+    m_opts.add_action("c", std::bind(&Config::cmdline_config, &config, std::placeholders::_1));
+    m_opts.add_option("c", "-c", "--config", "json_file", "Configuration file in json format");
+    m_opts.add_option("h", "-h", "--help", "", "Help options", false, true);
     m_opts.bind_help("h");
-    parse_opts();
+    m_opts.parse();
+    config.setup(m_opts);
+
+    auto port = config.get_port();
+    auto nrthr = config.get_nr_thread();
+    std::cout << "Starting server on port " << port << " on " << nrthr << " threads\n";
+
+    auto address = Pistache::Address(Pistache::Ipv4::any(), Pistache::Port(port));
+    auto opts = Pistache::Http::Endpoint::options().threads(nrthr);
+
+    opts.flags(Pistache::Tcp::Options::ReuseAddr);
+    opts.maxRequestSize(config.get_max_reqt_sz());
+    opts.maxResponseSize(config.get_max_resp_sz());
+    m_endPoint = std::make_shared<Pistache::Http::Endpoint>(address);
+    m_endPoint->init(opts);
 }
 
 void SealSvc::run()
 {
-    std::cout << "Starting server on port "
-        << m_portNum << " on " << m_numThreads << " threads\n";
     try {
         connect_db();
     } catch(...) {
@@ -44,7 +54,7 @@ void SealSvc::connect_db()
     if (m_dbpool != nullptr) {
         return;
     }
-    auto config = Config::instance(m_opts);
+    auto& config = Config::instance();
     m_dbpool = std::make_shared<ConnectorPool>(db::MySql);
     m_dbpool->dbHost(config.get_host())
         .dbName(config.get_db_name())
@@ -64,12 +74,6 @@ Config::Config()
 
     auto table = std::getenv(Config::EnvDbTable.data());
     m_db_name = (table == nullptr) ? Config::dbName : std::string_view(table);
-}
-
-void Config::setup(const ProgOpts& opts)
-{
-    std::cout << "Using db " << m_host << ", user "
-        << m_db_user << ", table " << m_db_name << std::endl;
 
     auto pass = std::getenv(Config::EnvDBPassKey.data());
     if (pass == nullptr) {
@@ -77,14 +81,39 @@ void Config::setup(const ProgOpts& opts)
         throw "Missing env value " + std::string(Config::EnvDBPassKey);
     }
     m_password = std::string_view(pass);
+
+    m_port = Config::ListenPort;
+    m_svc_thr = std::thread::hardware_concurrency();
 }
 
-const Config& Config::instance(const ProgOpts& opts)
+void Config::setup(const ProgOpts& opts)
+{
+    std::cout << "Using db " << m_host << ", user "
+        << m_db_user << ", table " << m_db_name << std::endl;
+
+}
+
+void Config::cmdline_config(const popt_arg_t& opt)
+{
+    auto jsfile = opt.value();
+    std::cout << "Using config " << jsfile << std::endl;
+
+    try {
+        std::ifstream file(jsfile);
+        if (!file.is_open()) {
+        }
+        nlohmann::json j;
+        file >> j;
+
+        file.close();
+    } catch (std::exception &e) {
+    }
+}
+
+Config& Config::instance()
 {
     if (sinst_cfg == nullptr) {
-        auto inst = new Config();
-        inst->setup(opts);
-        sinst_cfg = inst;
+        sinst_cfg = new Config();
     }
     return *sinst_cfg;
 }

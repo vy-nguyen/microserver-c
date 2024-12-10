@@ -25,9 +25,10 @@ void ProgOpts::help(std::ostringstream& os) const
         os << "\t";
         it.second.print(os);
     }
+    os << "Where <...> is required and [...] is optional\n";
 }
 
-void ProgOpts::add_action(std::string_view key, std::function<void()> action)
+void ProgOpts::add_action(std::string_view key, std::function<void(const popt_arg_t&)> action)
 {
     auto opt = m_opts.find(key);
     if (opt != m_opts.end()) {
@@ -35,7 +36,7 @@ void ProgOpts::add_action(std::string_view key, std::function<void()> action)
     }
 }
 
-void ProgOpts::print_help() const 
+void ProgOpts::print_help(const popt_arg_t& opt) const 
 {
     auto os = std::ostringstream();
     help(os);
@@ -43,7 +44,7 @@ void ProgOpts::print_help() const
 }
 
 void ProgOpts::bind_help(std::string_view key) {
-    add_action(key, std::bind(&ProgOpts::print_help, this));
+    add_action(key, std::bind(&ProgOpts::print_help, this, std::placeholders::_1));
 }
 
 void ProgOpts::parse()
@@ -94,11 +95,11 @@ void ProgOpts::parse()
         }
         auto action = opt.m_action;
         if (opt.m_flag_on && action != nullptr) {
-            action();
+            action(opt);
         }
     }
     if (error) {
-        print_help();
+        print_help(m_empty);
     }
 }
 
@@ -106,7 +107,7 @@ void ProgOpts::process_opt(std::vector<std::string_view>::iterator& it,
         std::string_view key, const std::string_view *value)
 {
     auto& opt = get_option(key);
-    if (valid(opt)) {
+    if (&opt != &m_empty) {
         if (opt.m_flag) {
             opt.set_flag();
         } else if (value != nullptr) {
