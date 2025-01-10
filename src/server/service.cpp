@@ -81,6 +81,8 @@ Config::Config()
         throw "Missing env value " + std::string(Config::EnvDBPassKey);
     }
     m_password = std::string_view(pass);
+    m_maxreqt_sz = Config::MaxRequestSize;
+    m_maxresp_sz = Config::MaxResponseSize;
 
     m_port = Config::ListenPort;
     m_svc_thr = std::thread::hardware_concurrency();
@@ -90,7 +92,6 @@ void Config::setup(const ProgOpts& opts)
 {
     std::cout << "Using db " << m_host << ", user "
         << m_db_user << ", table " << m_db_name << std::endl;
-
 }
 
 void Config::cmdline_config(const popt_arg_t& opt)
